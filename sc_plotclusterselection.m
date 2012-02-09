@@ -1,0 +1,55 @@
+
+function plotclusterselection(features);
+
+
+for i=1:features.Nclusters
+    
+    
+    if features.selected==i
+        %plot(-1+(0.2*(i-1)) +.14 ,1.16,'k.','MarkerSize',22);
+        
+        fill([ 0 -.1  -.2 -.2 -.1 -.1]-1 +((i)*0.2),[1.1 1.2 1.2 1.1 1.1 1.1] ,'b','FaceColor',[1 1 .7]);
+    end;
+    
+    text(-1+(0.2*(i-1)) +.04 ,1.16,['[',num2str(i),']'])
+    plot(-1+(0.2*(i-1)) +.02 ,1.16,features.clusterfstrs{i},'MarkerSize',16,'color',features.colors(i,:));
+    
+    
+    text(-1+(0.2*(i-1)) +.17 ,1.17,'v')
+    
+    if features.clustervisible(i)
+        fill([0 -.1 0]-1 +((i)*0.2),[1.1 1.2 1.2] ,'b','FaceColor',[.8 .8 .8]);
+    end;
+    
+    
+    
+    plot([0 -.1]-1 +((i)*0.2),[1.1 1.2] ,'k');
+    
+    
+    
+    plot([0 0]-1 +((i-1)*0.2),[1 1.2],'color',[.4 .4 .4]);
+    plot([0 0]-1 +((i-0)*0.2),[1 1.2],'color',[.4 .4 .4]);
+    
+    
+    
+    plot( [(i-1)*0.2,(i)*0.2]-1  ,[1.1, 1.1],'color',[.7 .7 .7]);
+    
+    plot( [(i-1)*0.2,(i)*0.2]-1  ,[1.05, 1.05],'color',[.7 .7 .7]); % divide add/mult buttons in half
+    
+    
+    text(-1+(0.2*(i-1)) +.04 ,1.08,'+');
+    text(-1+(0.2*(i-1)) +.14 ,1.06,'*');
+
+    text(-1+(0.2*(i-1)) +.04 ,1.02,'++');
+    text(-1+(0.2*(i-1)) +.14 ,1.02,'-');
+    
+    plot([1 1].*-1+(0.2*(i-1)) +.1,[1 1.1],'color',[.7 .7 .7]);
+    
+end;
+
+text(-1+(0.2*(i)) +.04,1.10,'+new+')
+plot([0 0]-1 +((i+1)*0.2),[1 1.2],'color',[.7 .7 .7]);
+
+text(-1+(0.2*(i)) +.3,1.16,'Simple Clust v0.3  jvoigts@mit.edu');
+text(-1+(0.2*(i)) +.3,1.06,features.muafile_justfile,'Interpreter','none');
+
