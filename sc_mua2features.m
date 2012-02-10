@@ -2,9 +2,7 @@ function features = mua2features(mua)
 
 %writes a spike parm file for tetrode data
 %
-% ONLY DOES ONE CHANNEL RIGHT NOW
-%
-
+% should do stereotrodes and tetrodes now
 
 %D=(squeeze(reshape(tt.waveforms,1,32*size(tt.waveforms,1),size(tt.waveforms,3) )));
 
