@@ -9,6 +9,10 @@ switch muafile(end-2:end)
         load(muafile);
         
         if ~ exist('mua') % no mua var in there, try doreas format
+            
+            if exist('times_all') % marker for doreas mat format
+            
+            % load doreas format
             mua.opt=[];
             mua.fname=muafile;
             
@@ -16,7 +20,7 @@ switch muafile(end-2:end)
             
             % concatenate all waveforms
             
-            mua.ncontacts = size(mua.waveforms,1);
+            mua.ncontacts = size(waveforms,1);
             
             mua.waveforms = (reshape(waveforms,size(waveforms,1)*size(waveforms,2),size(waveforms,3) ))';
             
@@ -26,6 +30,17 @@ switch muafile(end-2:end)
             
             features=sc_mua2features(mua);
             
+            else
+            
+                if 1 %marker for simple_clust output format  
+                
+                    % just load previous simple_clust data
+                    
+                    
+                end;
+                
+            end;
+            
         else % file has a variable mua in it, probably jakobs own format
             
             
@@ -33,6 +48,7 @@ switch muafile(end-2:end)
             features=sc_mua2features(mua);
             
         end;
+        
     case 'nst'
         
         cdata = read_cheetah_data(muafile);
