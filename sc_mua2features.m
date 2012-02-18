@@ -8,44 +8,6 @@ function features = mua2features(mua)
 
 D=mua.waveforms;
 
-%% run PCA via nipals
-% D=[ D(1:2:end,:) , D(2:2:end,:)];
-
-%{
-if size(D,2)<size(D,1)  % pad to square if there are fewer spikes than points per waveform
-    D(:,size(D,1))=0;
-end;
-%}
-%{
-for i=1:size(D,1)
-    
-    
-    %  possibly get rid of outliers for the pca
-    
-%{
-    level=0.001;
-    q=quantile(D(i,:),[level,1-level]);
-    D(i,D(i,:)>q(2))=q(2);
-    D(i,D(i,:)<q(1))=q(1);
-%}
-    
-    %   center/rescale
-    D(i,:)=D(i,:)-mean(D(i,:));
-    s=std(D(i,:));
-    if s>0
-        D(i,:)=D(i,:)./s;
-    else
-        D(i,:)=D(i,:).*0;
-    end;
-    
-    
-end;
-%}
-%{
-[Tprinc,Lprinc,pc]=nipals2(D,4);
-coeffs=Lprinc';
-%}
-
 %% get Wavelet coeffs
 
 
@@ -65,6 +27,13 @@ end;
 
 
 disp('  computing PCA ...')
+
+
+clf;
+fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+text(0,0,['making PCA features']);
+drawnow;
+
 [coeffs,score]= princomp(mua.waveforms','econ');
 
 D=coeffs(:,1:8)';
@@ -80,9 +49,28 @@ features=[];
 
 trodeboundaries = max(1,round(linspace(0,size(mua.waveforms,2),mua.ncontacts+1)));
 
+features.data=zeros(6,length(mua.ts));
+
+
+lastpercent=0;
 
 for n = 1:length(mua.ts)
+    
+    
+    
+    percent=round(100*n./length(mua.ts));
+    if percent>lastpercent
+        clf;
+        fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+        text(0,0,['making features ',num2str(percent),'%']);
+        drawnow;
+    end;
+    
+    lastpercent=percent;
+    
     c=0;
+    
+    
     spike = squeeze(mua.waveforms(n,:))./20;
     
     features.ts(n)=mua.ts(n);
@@ -135,7 +123,7 @@ for n = 1:length(mua.ts)
     
     
     
-       % max. derivative
+    % max. derivative
     c=c+1;
     features.data(c,n)=max(abs(diff(spike)));
     
@@ -145,7 +133,10 @@ for n = 1:length(mua.ts)
 end
 
 
-
+clf;
+fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+text(0,0,['done, setting up display..']);
+drawnow;
 
 
 %% old code

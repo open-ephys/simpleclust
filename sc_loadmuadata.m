@@ -20,7 +20,7 @@ switch muafile(end-2:end)
             
             % concatenate all waveforms
             
-            mua.ncontacts = size(waveforms,1);
+            mua.ncontacts = size(waveforms,2);
             
             mua.waveforms = (reshape(waveforms,size(waveforms,1)*size(waveforms,2),size(waveforms,3) ))';
             
