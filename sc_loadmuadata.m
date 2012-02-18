@@ -14,7 +14,7 @@ switch muafile(end-2:end)
             if exist('times_all') % marker for doreas mat format
                 
                 
-                prompt = {['source channel nr for file ',FileName]};
+                prompt = {['source channel nr for file ',muafile]};
                 dlg_title = 'channel nr';
                 num_lines = 1;
                 def = {''};
@@ -66,7 +66,7 @@ switch muafile(end-2:end)
     case 'nst'
         
         
-        prompt = {['source channel nr for file ',FileName]};
+        prompt = {['source channel nr for file ',muafile]};
         dlg_title = 'channel nr';
         num_lines = 1;
         def = {''};
