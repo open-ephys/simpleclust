@@ -26,13 +26,19 @@ end;
 %% do PCA features
 
 
-disp('  computing PCA ...')
+disp('  precalculating PCA ...')
 
 
-clf;
+clf; hold on
 fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
-text(0,0,['making PCA features']);
+x=linspace(0,2*pi,80);
+plot(sin(x).*.4,cos(x).*.4,'k','LineWidth',22,'color',[1 1 1])
+
+text(0,0,['precalculating PCA']);
+xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
 drawnow;
+
 
 [coeffs,score]= princomp(mua.waveforms','econ');
 
@@ -57,12 +63,18 @@ lastpercent=0;
 for n = 1:length(mua.ts)
     
     
-    
     percent=round(100*n./length(mua.ts));
     if percent>lastpercent
-        clf;
+        clf; hold on;
         fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+        
+        x=linspace(0,2*pi*percent./100,100);
+        plot(sin(x).*.4,cos(x).*.4,'k','LineWidth',22,'color',[.85 .85 .85])
         text(0,0,['making features ',num2str(percent),'%']);
+        
+        xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+        daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
+        
         drawnow;
     end;
     
@@ -133,9 +145,14 @@ for n = 1:length(mua.ts)
 end
 
 
-clf;
+clf; hold on;
 fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+x=linspace(0,2*pi,80);
+plot(sin(x).*.4,cos(x).*.4,'k','LineWidth',22,'color',[.9 .9 .9])
+
 text(0,0,['done, setting up display..']);
+xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
 drawnow;
 
 

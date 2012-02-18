@@ -11,6 +11,7 @@
 %{
 features 2do:
 
+X- loading of simpleclust state with clusters etc intact
 X- 'remove features' button (small x) on left
 X - add ++ button that puts spikes into cluster from any other cluster even if prev. asigned
 X- ISI display
@@ -19,7 +20,7 @@ X- display multiple waveforms around where user clicke, like 10ish
 X- allow rescaling of all visible clusters, pretty much works as zoom
 X- time selection at bottom? or just add time feature?
 - add merge clusters function
-- add better features for loading stereotrode and tetrode data
+X- add better features for loading stereotrode and tetrode data
 X- undo function for the cluster operations
 X- make peaks/energy etc work with TTL/ST files
 
@@ -46,12 +47,18 @@ while run
     title('simple clust v0.3');
     %  disp(features.name');
     if ~dataloaded
+        
+        x=linspace(0,2*pi,80);
+        plot(sin(x).*.3,cos(x).*.3,'k','LineWidth',28,'color',[1 1 1])
         text(0,0,'Simple Clust v0.3')
+            xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+    daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
+    
         
     end;
     
     if dataloaded
-
+        
         sc_plotclusters(features);
         
         sc_plotfeatureselection(features);
@@ -78,10 +85,8 @@ while run
     
     plot([-1.2 -1],[1 1],'color',[.7 .7 .7]);
     
-    xlim([-1.3, 3.3]);
-    ylim([-1.3, 1.2]);
-    
-    daspect([1 1 1]);
+    xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+    daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
     
     
     
@@ -128,11 +133,6 @@ while run
                 % not worth the loss of flexibility
                 %
                 
-                prompt = {['source channel nr for file ',FileName]};
-                dlg_title = 'channel nr';
-                num_lines = 1;
-                def = {''};
-                chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
                 
                 
                 %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
@@ -143,7 +143,7 @@ while run
                 % cd(PathName); % for faster selection of later input files
                 features.muafile_justfile =FileName;
                 
-                features.sourcechannel= str2num(chnumstr{1});
+                
                 dataloaded=1;
                 
             else
@@ -179,9 +179,15 @@ while run
                     
                     %outfilename=[spikes.sourcefile(1:end-4),'_clustered.mat'];
                     outfilename=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_clustered.mat'];
-                    
                     save(outfilename,'spikes');
-                    disp(['saved to ',outfilename]);
+                    
+                    % save simpleclust state so we can just load it again
+                    % if needed
+                     outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
+                    save(outfilename_sc,'features','mua');
+                    
+                    disp(['saved to ',outfilename,' output for using in science']);
+                    disp(['saved to ',outfilename_sc,' can be loaded with simpleclust']);
                     
                     run=0;
                 end;
