@@ -67,7 +67,7 @@ ftype = lower(fname(L-2:L));
 
 if ~strcmp(ftype,'ncs') && ~strcmp(ftype,'nev') ...
         && ~strcmp(ftype,'ntt') && ~strcmp(ftype,'nst') ...
-        && ~strcmp(ftype,'nvt')
+        && ~strcmp(ftype,'nvt') && ~strcmp(ftype,'nse')
     error('read_cheetah_data: This is an invalid file type.')
 end
 
@@ -165,6 +165,27 @@ switch ftype
         data.waveforms = double(data.waveforms);
         
 
+        
+     case 'nse'
+        
+        bytes_per_block = 112;
+        offset = 8+4+4+4*8;
+        
+        %read in data
+        status = fseek(fid,bytes_per_header,'bof');
+        data.ts = fread(fid,inf,'*uint64',bytes_per_block-8);
+        
+        status = fseek(fid,bytes_per_header+offset,'bof');
+        data.waveforms = reshape(fread(fid,inf,'32*int16=>int16',bytes_per_block-32*2),1,[]);
+        
+        nspikes = length(data.ts); 
+        
+        data.waveforms = reshape(data.waveforms,1,32,nspikes);
+        
+        % convert to double and convert to seconds
+        data.ts = double(data.ts)./1e6;
+        data.waveforms = double(data.waveforms);
+        
     case 'nev' % Event record
 
         bytes_per_block = 184;

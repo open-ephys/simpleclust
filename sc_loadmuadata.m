@@ -63,6 +63,45 @@ switch muafile(end-2:end)
             
         end;
         
+            case 'nse'
+        
+        
+        prompt = {['source channel nr for file ',muafile]};
+        dlg_title = 'channel nr';
+        num_lines = 1;
+        def = {''};
+        features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+        features.sourcechannel= str2num(features.chnumstr{1});
+        
+        cdata = read_cheetah_data(muafile);
+        %mua = load_neuralynx_mua(muafile);
+        
+        clear mua;
+        mua=[];
+        mua.Nspikes = size(cdata.ts,1);
+        mua.waveforms=cdata.waveforms;
+        mua.ts=cdata.ts;
+        
+        [pathstr, name, ext] = fileparts(muafile);
+        mua.fname=[name,ext];
+        
+        mua.ts_spike=linspace(-.5,.5,32); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
+        
+        mua.opt=[];
+        mua.header=cdata.header;
+        
+        
+        
+        mua.ncontacts = size(mua.waveforms,1);
+        
+        % flatten waveforms for display
+        
+        D= (squeeze(reshape(mua.waveforms,1,32,size(mua.waveforms,3))));
+        mua.waveforms=[D(1:end,:)]';
+        mua.ts_spike=linspace(-.5,1.5,32);
+        
+        features=sc_mua2features(mua);
+        
     case 'nst'
         
         

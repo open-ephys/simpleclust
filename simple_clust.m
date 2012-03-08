@@ -32,6 +32,8 @@ run=1;
 dataloaded=0;
 
 addpath(pwd);
+addpath(fullfile(pwd,'read_cheetah'));
+
 %% main loop
 
 while run
@@ -125,7 +127,7 @@ while run
                 
                 % load MUa data
                 
-                [FileName,PathName,FilterIndex] = uigetfile({'*.mat', 'matlab file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
+                [FileName,PathName,FilterIndex] = uigetfile({'*.mat', 'matlab file';'*.nse',  'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
                 features.muafile =[PathName,FileName];
                 
                 % ask user for channel number this file comes from
