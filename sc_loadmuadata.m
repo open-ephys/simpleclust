@@ -63,7 +63,7 @@ switch muafile(end-2:end)
             
         end;
         
-            case 'nse'
+    case 'nse'
         
         
         prompt = {['source channel nr for file ',muafile]};
@@ -141,6 +141,14 @@ switch muafile(end-2:end)
         
         features=sc_mua2features(mua);
     case 'ntt'
+        
+        prompt = {['source channel nr for file ',muafile]};
+        dlg_title = 'channel nr';
+        num_lines = 1;
+        def = {''};
+        features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+        features.sourcechannel= str2num(features.chnumstr{1});
+        
         
         cdata = read_cheetah_data(muafile);
         %mua = load_neuralynx_mua(muafile);
