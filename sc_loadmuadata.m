@@ -19,7 +19,7 @@ switch muafile(end-2:end)
                 num_lines = 1;
                 def = {''};
                 features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-                features.sourcechannel= str2num(features.chnumstr{1});
+                sourcechannel= str2num(features.chnumstr{1});
                 
                 % load doreas format
                 mua.opt=[];
@@ -38,7 +38,7 @@ switch muafile(end-2:end)
                 mua.ts_spike=[1:size( mua.waveforms,2)];
                 
                 features=sc_mua2features(mua);
-                
+                features.sourcechannel= sourcechannel;
                 
                 
             end;
@@ -71,7 +71,7 @@ switch muafile(end-2:end)
         num_lines = 1;
         def = {''};
         features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-        features.sourcechannel= str2num(features.chnumstr{1});
+        sourcechannel= str2num(features.chnumstr{1});
         
         cdata = read_cheetah_data(muafile);
         %mua = load_neuralynx_mua(muafile);
@@ -101,6 +101,7 @@ switch muafile(end-2:end)
         mua.ts_spike=linspace(-.5,1.5,32);
         
         features=sc_mua2features(mua);
+        features.sourcechannel= sourcechannel;
         
     case 'nst'
         
@@ -110,7 +111,7 @@ switch muafile(end-2:end)
         num_lines = 1;
         def = {''};
         features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-        features.sourcechannel= str2num(features.chnumstr{1});
+        sourcechannel= str2num(features.chnumstr{1});
         
         cdata = read_cheetah_data(muafile);
         %mua = load_neuralynx_mua(muafile);
@@ -140,6 +141,7 @@ switch muafile(end-2:end)
         mua.ts_spike=linspace(-.5,1.5,64);
         
         features=sc_mua2features(mua);
+        features.sourcechannel= sourcechannel;
     case 'ntt'
         
         prompt = {['source channel nr for file ',muafile]};
@@ -147,7 +149,7 @@ switch muafile(end-2:end)
         num_lines = 1;
         def = {''};
         features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-        features.sourcechannel= str2num(features.chnumstr{1});
+        sourcechannel= str2num(features.chnumstr{1});
         
         
         cdata = read_cheetah_data(muafile);
@@ -177,6 +179,9 @@ switch muafile(end-2:end)
         mua.ts_spike=linspace(-.5,1.5,64);
         
         features=sc_mua2features(mua);
+        features.sourcechannel= sourcechannel;
+        
+        
     otherwise
         error('unrecognized file format');
 end;
