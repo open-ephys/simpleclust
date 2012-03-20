@@ -127,7 +127,7 @@ else % evaluate x,y
     
     i=3; % waveforms +
     if (x>pos(i)) && (x<pos(i+1))
-        features.waveformscale=features.waveformscale+0.0001;
+        features.waveformscale=features.waveformscale.*1.1;
         features=sc_updateclusterimages(features,mua);
     end;
     
