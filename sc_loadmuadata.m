@@ -202,7 +202,17 @@ if ~skipsetup
     features.colors=[.7 .7 .7; 1 0 0; 0 1 0; 0 0 1; 1 .7 0; 1 .2 1; 0 1 1; 1 .5 0; .5 1 0; 1 0 .5];
     features.Nclusters=2;
     features.imagesize=100;
+    
     features.waveformscale=0.0001;
+    % find appropriate scale for plotting waveforms
+    
+    
+    features.waveformscale=0.1 ./ quantile(mua.waveforms(:)-mean(mua.waveforms(:)),.95);
+    
+    
+    
+    
+    
     features.numextrafeaatures=0;
     features.highlight = 0;
     features.clusterimages=ones(features.imagesize,features.imagesize,12);
