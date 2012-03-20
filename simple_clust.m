@@ -23,7 +23,8 @@ X- time selection at bottom? or just add time feature?
 X- add better features for loading stereotrode and tetrode data
 X- undo function for the cluster operations
 X- make peaks/energy etc work with TTL/ST files
-
+X- make selection polygon same color as the cluster
+X - automatically scale waveforms when loading (scaling by 95 quantile of all waveforms)
 
 
 %}
@@ -31,8 +32,12 @@ X- make peaks/energy etc work with TTL/ST files
 run=1;
 dataloaded=0;
 
-addpath(pwd);
-addpath(fullfile(pwd,'read_cheetah'));
+%addpath(pwd);
+%addpath(fullfile(pwd,'read_cheetah'));
+
+if numel(strfind(PATH,'read_cheetah')) ==0
+    error('make sure the read_cheetah dir is in your matlab path');
+end;
 
 %% main loop
 
@@ -53,9 +58,9 @@ while run
         x=linspace(0,2*pi,80);
         plot(sin(x).*.3,cos(x).*.3,'k','LineWidth',28,'color',[1 1 1])
         text(0,0,'Simple Clust v0.3')
-            xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
-    daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
-    
+        xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+        daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
+        
         
     end;
     
@@ -185,7 +190,7 @@ while run
                     
                     % save simpleclust state so we can just load it again
                     % if needed
-                     outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
+                    outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
                     save(outfilename_sc,'features','mua');
                     
                     disp(['saved to ',outfilename,' output for using in science']);
