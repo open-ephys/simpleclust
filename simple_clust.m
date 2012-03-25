@@ -140,15 +140,34 @@ while run
                 % not worth the loss of flexibility
                 %
                 
-                
+
                 
                 %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
-                [features,mua]=sc_loadmuadata(features.muafile);
+                [features,mua]=sc_loadmuadata(features.muafile,1);
+                
+ 
                 
                 features.muafilepath =[PathName];
                 features.muafile =[PathName,FileName];
                 % cd(PathName); % for faster selection of later input files
                 features.muafile_justfile =FileName;
+                
+                % ask to load other files
+                % this can be used to make a feature that counts how many
+                % channels a spike occurs in simultaneously
+                button = questdlg('Open other channnels from same recording?','open?','Yes','No','Yes');
+                
+                if strcmp(button,'Yes')
+                    features.loadmultiple=1;
+                    [FileName,PathName,FilterIndex] = uigetfile({'*.mat', 'matlab file';'*.nse',  'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose files for other channels','MultiSelect','on');
+                    features.otherchannelfiles=FileName;
+                    
+                    [features,mua]=sc_addotherchannelstomua(features,mua);
+                    
+                else
+                    features.loadmultiple=0;
+                end;
+                
                 
                 
                 dataloaded=1;

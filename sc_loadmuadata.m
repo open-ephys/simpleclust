@@ -1,9 +1,11 @@
-function [features,mua]=sc_loadmuadata(muafile)
+function [features,mua]=sc_loadmuadata(muafile, dofeatures)
 
 
 
 %load('/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-19_23-52-54_10min_laser_100msisi_1-4sec delay/spikes_from_csc/mua_ch3.mat')
+
 skipsetup=0;
+
 
 switch muafile(end-2:end)
     case 'mat'
@@ -14,12 +16,14 @@ switch muafile(end-2:end)
             if exist('times_all') % marker for doreas mat format
                 
                 
-                prompt = {['source channel nr for file ',muafile]};
-                dlg_title = 'channel nr';
-                num_lines = 1;
-                def = {''};
-                features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-                sourcechannel= str2num(features.chnumstr{1});
+                if dofeatures
+                    prompt = {['source channel nr for file ',muafile]};
+                    dlg_title = 'channel nr';
+                    num_lines = 1;
+                    def = {''};
+                    features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+                    features.sourcechannel= str2num(features.chnumstr{1});
+                end;
                 
                 % load doreas format
                 mua.opt=[];
@@ -36,9 +40,9 @@ switch muafile(end-2:end)
                 mua.ts = times_all;
                 
                 mua.ts_spike=[1:size( mua.waveforms,2)];
-                
-                features=sc_mua2features(mua);
-                features.sourcechannel= sourcechannel;
+                if dofeatures
+                    features=sc_mua2features(mua);
+                end;
                 
                 
             end;
@@ -57,7 +61,10 @@ switch muafile(end-2:end)
                 % for now we only deal with simple electrodes
                 
                 mua.ncontacts = 1;
-                features=sc_mua2features(mua);
+                
+                if dofeatures
+                    features=sc_mua2features(mua);
+                end;
             end;
             
             
@@ -65,13 +72,14 @@ switch muafile(end-2:end)
         
     case 'nse'
         
-        
-        prompt = {['source channel nr for file ',muafile]};
-        dlg_title = 'channel nr';
-        num_lines = 1;
-        def = {''};
-        features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-        sourcechannel= str2num(features.chnumstr{1});
+        if dofeatures
+            prompt = {['source channel nr for file ',muafile]};
+            dlg_title = 'channel nr';
+            num_lines = 1;
+            def = {''};
+            features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+            features.sourcechannel= str2num(features.chnumstr{1});
+        end;
         
         cdata = read_cheetah_data(muafile);
         %mua = load_neuralynx_mua(muafile);
@@ -100,18 +108,21 @@ switch muafile(end-2:end)
         mua.waveforms=[D(1:end,:)]';
         mua.ts_spike=linspace(-.5,1.5,32);
         
-        features=sc_mua2features(mua);
-        features.sourcechannel= sourcechannel;
+        if dofeatures
+            features=sc_mua2features(mua);
+        end;
         
     case 'nst'
         
         
-        prompt = {['source channel nr for file ',muafile]};
-        dlg_title = 'channel nr';
-        num_lines = 1;
-        def = {''};
-        features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-        sourcechannel= str2num(features.chnumstr{1});
+        if dofeatures
+            prompt = {['source channel nr for file ',muafile]};
+            dlg_title = 'channel nr';
+            num_lines = 1;
+            def = {''};
+            features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+            features.sourcechannel= str2num(features.chnumstr{1});
+        end;
         
         cdata = read_cheetah_data(muafile);
         %mua = load_neuralynx_mua(muafile);
@@ -140,17 +151,21 @@ switch muafile(end-2:end)
         mua.waveforms=[D(1:2:end,:);D(2:2:end,:)]';
         mua.ts_spike=linspace(-.5,1.5,64);
         
-        features=sc_mua2features(mua);
-        features.sourcechannel= sourcechannel;
+        if dofeatures
+            features=sc_mua2features(mua);
+        end;
+        
     case 'ntt'
         
-        prompt = {['source channel nr for file ',muafile]};
-        dlg_title = 'channel nr';
-        num_lines = 1;
-        def = {''};
-        features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-        sourcechannel= str2num(features.chnumstr{1});
         
+        if dofeatures
+            prompt = {['source channel nr for file ',muafile]};
+            dlg_title = 'channel nr';
+            num_lines = 1;
+            def = {''};
+            features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+            features.sourcechannel= str2num(features.chnumstr{1});
+        end;
         
         cdata = read_cheetah_data(muafile);
         %mua = load_neuralynx_mua(muafile);
@@ -178,12 +193,18 @@ switch muafile(end-2:end)
         mua.waveforms=[D(1:4:end,:);D(2:4:end,:);D(3:4:end,:);D(4:4:end,:)]';
         mua.ts_spike=linspace(-.5,1.5,64);
         
-        features=sc_mua2features(mua);
-        features.sourcechannel= sourcechannel;
-        
+        if dofeatures
+            features=sc_mua2features(mua);
+        end;
         
     otherwise
         error('unrecognized file format');
+end;
+
+
+if ~dofeatures
+    skipsetup=1;
+    features=[]; % in this case just return the mua
 end;
 
 
@@ -202,17 +223,7 @@ if ~skipsetup
     features.colors=[.7 .7 .7; 1 0 0; 0 1 0; 0 0 1; 1 .7 0; 1 .2 1; 0 1 1; 1 .5 0; .5 1 0; 1 0 .5];
     features.Nclusters=2;
     features.imagesize=100;
-    
     features.waveformscale=0.0001;
-    % find appropriate scale for plotting waveforms
-    
-    
-    features.waveformscale=0.1 ./ quantile(mua.waveforms(:)-mean(mua.waveforms(:)),.95);
-    
-    
-    
-    
-    
     features.numextrafeaatures=0;
     features.highlight = 0;
     features.clusterimages=ones(features.imagesize,features.imagesize,12);
