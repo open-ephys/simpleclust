@@ -35,7 +35,7 @@ dataloaded=0;
 %addpath(pwd);
 %addpath(fullfile(pwd,'read_cheetah'));
 
-if numel(strfind(PATH,'read_cheetah')) ==0
+if numel(strfind(path,'read_cheetah')) ==0
     error('make sure the read_cheetah dir is in your matlab path');
 end;
 

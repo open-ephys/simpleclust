@@ -23,6 +23,7 @@ switch muafile(end-2:end)
                     def = {''};
                     features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
                     features.sourcechannel= str2num(features.chnumstr{1});
+                    sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
                 end;
                 
                 % load doreas format
@@ -42,6 +43,7 @@ switch muafile(end-2:end)
                 mua.ts_spike=[1:size( mua.waveforms,2)];
                 if dofeatures
                     features=sc_mua2features(mua);
+                    features.sourcechannel=sourcechannel;
                 end;
                 
                 
@@ -64,6 +66,7 @@ switch muafile(end-2:end)
                 
                 if dofeatures
                     features=sc_mua2features(mua);
+                    features.sourcechannel=sourcechannel;
                 end;
             end;
             
@@ -79,6 +82,7 @@ switch muafile(end-2:end)
             def = {''};
             features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
             features.sourcechannel= str2num(features.chnumstr{1});
+            sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
         end;
         
         cdata = read_cheetah_data(muafile);
@@ -110,6 +114,7 @@ switch muafile(end-2:end)
         
         if dofeatures
             features=sc_mua2features(mua);
+            features.sourcechannel=sourcechannel;
         end;
         
     case 'nst'
@@ -122,6 +127,7 @@ switch muafile(end-2:end)
             def = {''};
             features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
             features.sourcechannel= str2num(features.chnumstr{1});
+            sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
         end;
         
         cdata = read_cheetah_data(muafile);
@@ -153,6 +159,7 @@ switch muafile(end-2:end)
         
         if dofeatures
             features=sc_mua2features(mua);
+            features.sourcechannel=sourcechannel;
         end;
         
     case 'ntt'
@@ -165,6 +172,7 @@ switch muafile(end-2:end)
             def = {''};
             features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
             features.sourcechannel= str2num(features.chnumstr{1});
+            sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
         end;
         
         cdata = read_cheetah_data(muafile);
@@ -195,6 +203,7 @@ switch muafile(end-2:end)
         
         if dofeatures
             features=sc_mua2features(mua);
+            features.sourcechannel=sourcechannel;
         end;
         
     otherwise
@@ -223,7 +232,13 @@ if ~skipsetup
     features.colors=[.7 .7 .7; 1 0 0; 0 1 0; 0 0 1; 1 .7 0; 1 .2 1; 0 1 1; 1 .5 0; .5 1 0; 1 0 .5];
     features.Nclusters=2;
     features.imagesize=100;
+    
     features.waveformscale=0.0001;
+    
+     % find appropriate scale for plotting waveforms    
+     features.waveformscale=0.1 ./ quantile(mua.waveforms(:)-mean(mua.waveforms(:)),.95);
+
+    
     features.numextrafeaatures=0;
     features.highlight = 0;
     features.clusterimages=ones(features.imagesize,features.imagesize,12);
