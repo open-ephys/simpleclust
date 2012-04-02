@@ -34,11 +34,47 @@ for i=1:2%size(features.data,1) % scale only the features we're looking at
     
     
 end;
+
+% hide out of bounds points
 features.zoomvisible = ( features.data(features.featureselects(1),:) < features.zoomrange(features.featureselects(1),2) ).* ...
     ( features.data(features.featureselects(1),:) > features.zoomrange(features.featureselects(1),1) ).* ...
     ( features.data(features.featureselects(2),:) < features.zoomrange(features.featureselects(2),2) ).* ...
     ( features.data(features.featureselects(2),:) > features.zoomrange(features.featureselects(2),1) );
 
+
+% indicate if some were cut off
+% right
+if min(( features.data(features.featureselects(1),:) <= features.zoomrange(features.featureselects(1),2) )) ==0
+    for i=linspace(-.7 ,.7, 9)
+        plot([0 0.04]+.95,i+[0 0],'color',[.5 .5 .5]);
+        plot([0 -0.02]+.99,i+[0 0.01],'color',[.5 .5 .5]);
+        plot([0 -0.02]+.99,i-[0 0.01],'color',[.5 .5 .5]);
+    end;
+end;
+% left
+if min(( features.data(features.featureselects(1),:) >= features.zoomrange(features.featureselects(1),1) )) ==0
+    for i=linspace(-.7 ,.7, 9)
+        plot([0 0.04]-.95,i+[0 0],'color',[.5 .5 .5]);
+        plot([0 0.02]-.95,i+[0 0.01],'color',[.5 .5 .5]);
+        plot([0 0.02]-.95,i-[0 0.01],'color',[.5 .5 .5]);
+    end;
+end;
+% top
+if min(( features.data(features.featureselects(2),:) <= features.zoomrange(features.featureselects(2),2) )) ==0
+    for i=linspace(-.7 ,.7, 9)
+        plot(i+[0 0],[0 0.04]+.95,'color',[.5 .5 .5]);
+        plot(i+[0 0.01],[0 -0.02]+.99,'color',[.5 .5 .5]);
+        plot(i-[0 0.01],[0 -0.02]+.99,'color',[.5 .5 .5]);
+    end;
+end;
+% bottom
+if min(( features.data(features.featureselects(2),:) >= features.zoomrange(features.featureselects(2),1) )) ==0
+    for i=linspace(-.6 ,.7, 7)
+        plot(i+[0 0],[0 0.04]-.95,'color',[.5 .5 .5]);
+        plot(i+[0 0.01],[0 0.02]-.95,'color',[.5 .5 .5]);
+        plot(i-[0 0.01],[0 0.02]-.95,'color',[.5 .5 .5]);
+    end;
+end;
 %% plot
 for i=1:features.Nclusters
     if features.clustervisible(i)
