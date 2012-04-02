@@ -66,7 +66,7 @@ while run
     
     if dataloaded
         
-        sc_plotclusters(features);
+        features=sc_plotclusters(features);
         
         sc_plotfeatureselection(features);
         
@@ -107,6 +107,7 @@ while run
         
         features=sc_parse_clickonwaveforms(x,y,features,mua);
         
+        features=sc_parse_zoom(b,x,y,features);
         
         features=sc_timeline(features,mua,x,y,b);
         
@@ -140,12 +141,12 @@ while run
                 % not worth the loss of flexibility
                 %
                 
-
+                
                 
                 %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
                 [features,mua]=sc_loadmuadata(features.muafile,1);
                 
- 
+                
                 
                 features.muafilepath =[PathName];
                 features.muafile =[PathName,FileName];

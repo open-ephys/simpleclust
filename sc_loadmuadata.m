@@ -238,6 +238,10 @@ if ~skipsetup
      % find appropriate scale for plotting waveforms    
      features.waveformscale=0.1 ./ quantile(mua.waveforms(:)-mean(mua.waveforms(:)),.95);
 
+    features.range=zeros(size(features.data,1),2); % for x/y range display
+    features.zoomrange=zeros(size(features.data,1),2); % where do we display right now
+    
+    
     
     features.numextrafeaatures=0;
     features.highlight = 0;

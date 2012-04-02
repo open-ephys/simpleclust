@@ -1,7 +1,7 @@
 function features=add_to_cluster(features,i,featureselects)
 
 
-[px,py] =sc_getpolygon(features.colors(i,:));
+[px,py] =sc_getpolygon(features,features.colors(i,:));
 
 
 if i>1

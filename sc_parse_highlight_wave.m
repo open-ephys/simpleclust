@@ -5,13 +5,16 @@ function features= parse_highlight_wave(x,y,features);
 visible= find(ismember(features.clusters, find(features.clustervisible)));
 
 
-dX=features.data(features.featureselects(1),visible);
-dY=features.data(features.featureselects(2),visible);
+dX=features.data_scaled(features.featureselects(1),visible);
+dY=features.data_scaled(features.featureselects(2),visible);
 
+
+%x=sc_remap(x,-.9, .9, features.zoomrange(features.featureselects(1),1),features.zoomrange(features.featureselects(1),2) );
+%y=sc_remap(y,-.9, .9, features.zoomrange(features.featureselects(2),1),features.zoomrange(features.featureselects(2),2) );
 
 
 [d,selected]=min( sqrt( (dX-x).^2 + (dY-y).^2 ) );
-if d<10
+if d<  10
     
     %plot(dX(visible(selected)),dY(visible(selected)),'ro','MarkerSize',10);
     features.highlight = visible(selected);
