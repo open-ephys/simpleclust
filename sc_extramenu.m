@@ -215,7 +215,7 @@ else % evaluate x,y
     i=12; % rescaling
     
     if (x>pos(i)) && (x<pos(i+1))
-        features=sc_scale_features(features);
+        features=sc_zoom_all(features);
     end;
     %
     
