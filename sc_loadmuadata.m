@@ -100,7 +100,7 @@ switch muafile(end-2:end)
         mua.ts=cdata.ts;
         
         %identify bits2volt in header
-        vstart=strfind(cdata.header,'ADBitVolts')
+        vstart=strfind(cdata.header,'ADBitVolts');
         mua.val2volt=str2num(cdata.header(vstart+10:vstart+24));
         
         [pathstr, name, ext] = fileparts(muafile);
@@ -157,7 +157,7 @@ switch muafile(end-2:end)
         mua.header=cdata.header;
         
         %identify bits2volt in header
-        vstart=strfind(cdata.header,'ADBitVolts')
+        vstart=strfind(cdata.header,'ADBitVolts');
         mua.val2volt=str2num(cdata.header(vstart+10:vstart+24));
         
         mua.ncontacts = size(mua.waveforms,1);
@@ -207,7 +207,7 @@ switch muafile(end-2:end)
         
         
         %identify bits2volt in header
-        vstart=strfind(cdata.header,'ADBitVolts')
+        vstart=strfind(cdata.header,'ADBitVolts');
         mua.val2volt=str2num(cdata.header(vstart+10:vstart+24));
         
         

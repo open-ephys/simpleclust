@@ -53,7 +53,7 @@ while run
     
     
     
-    fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.93 .93 .93]);
+    fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.92 .92 .92]);
     
     set(gca, 'position', [0 0 1 1]);
     
