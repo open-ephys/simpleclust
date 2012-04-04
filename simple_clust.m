@@ -11,11 +11,12 @@
 %{
 features 2do:
 
+- fix ISI display
 X- loading of simpleclust state with clusters etc intact
 X- 'remove features' button (small x) on left
 X - add ++ button that puts spikes into cluster from any other cluster even if prev. asigned
 X- ISI display
-- xcorr feature?
+- xcorr feature
 X- display multiple waveforms around where user clicke, like 10ish
 X- allow rescaling of all visible clusters, pretty much works as zoom
 X- time selection at bottom? or just add time feature?
@@ -25,12 +26,17 @@ X- undo function for the cluster operations
 X- make peaks/energy etc work with TTL/ST files
 X- make selection polygon same color as the cluster
 X - automatically scale waveforms when loading (scaling by 95 quantile of all waveforms)
-
+X - proper zoom function
+X - detection of spike overlaps over many channels
 
 %}
 
 run=1;
 dataloaded=0;
+
+global debugstate;
+debugstate = 0; % 0: do nothing, 1: go trough following states
+debuginput = [0 0 0];
 
 %addpath(pwd);
 %addpath(fullfile(pwd,'read_cheetah'));
@@ -51,8 +57,8 @@ while run
     
     set(gca, 'position', [0 0 1 1]);
     
-    title('simple clust v0.3');
-    %  disp(features.name');
+    title('simple clust v0.4');
+    
     if ~dataloaded
         
         x=linspace(0,2*pi,80);
@@ -97,8 +103,11 @@ while run
     
     
     
-    [x,y,b] = ginput(1);
+    [x,y,b] = sc_ginput(1);
+    
+    %   debuginput(end+1,1:3)=[x y b]; % for recording debug input sequence
     %disp(b);
+    
     
     if dataloaded
         features=sc_parse_feature_selection(x,y,features);
@@ -132,10 +141,17 @@ while run
             if strcmp(button,'Yes')
                 
                 % load MUa data
+                global debugstate
+                if debugstate > 0
+                    
+                    PathName = '/home/jvoigts/Dropbox/em003/good/';
+                    FileName =  'ST11.nse';
+                else
+                    [FileName,PathName,FilterIndex] = uigetfile({'*.mat', 'matlab file';'*.nse',  'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
+                    
+                end;
                 
-                [FileName,PathName,FilterIndex] = uigetfile({'*.mat', 'matlab file';'*.nse',  'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
                 features.muafile =[PathName,FileName];
-                
                 % ask user for channel number this file comes from
                 % could parse filename here but the small time saving is
                 % not worth the loss of flexibility
@@ -156,7 +172,12 @@ while run
                 % ask to load other files
                 % this can be used to make a feature that counts how many
                 % channels a spike occurs in simultaneously
-                button = questdlg('Open other channnels from same recording?','open?','Yes','No','Yes');
+                if debugstate >0
+                    button='no';
+                else
+                    
+                    button = questdlg('Open other channnels from same recording?','open?','Yes','No','Yes');
+                end;
                 
                 if strcmp(button,'Yes')
                     features.loadmultiple=1;

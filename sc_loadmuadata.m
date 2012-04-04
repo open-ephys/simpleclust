@@ -76,11 +76,16 @@ switch muafile(end-2:end)
     case 'nse'
         
         if dofeatures
-            prompt = {['source channel nr for file ',muafile]};
-            dlg_title = 'channel nr';
-            num_lines = 1;
-            def = {''};
-            features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+            global debugstate
+            if debugstate > 0
+                features.chnumstr{1} = '3';
+            else
+                prompt = {['source channel nr for file ',muafile]};
+                dlg_title = 'channel nr';
+                num_lines = 1;
+                def = {''};
+                features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+            end;
             features.sourcechannel= str2num(features.chnumstr{1});
             sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
         end;
@@ -235,9 +240,9 @@ if ~skipsetup
     
     features.waveformscale=0.0001;
     
-     % find appropriate scale for plotting waveforms    
-     features.waveformscale=0.1 ./ quantile(mua.waveforms(:)-mean(mua.waveforms(:)),.95);
-
+    % find appropriate scale for plotting waveforms
+    features.waveformscale=0.1 ./ quantile(mua.waveforms(:)-mean(mua.waveforms(:)),.95);
+    
     features.range=zeros(size(features.data,1),2); % for x/y range display
     features.zoomrange=zeros(size(features.data,1),2); % where do we display right now
     
