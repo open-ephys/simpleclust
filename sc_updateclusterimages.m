@@ -2,6 +2,22 @@ function features=updateclusterimages(features,mua);
 
 features.clusterimages=zeros(features.imagesize,features.imagesize,12);
 
+usefastmethod =1;
+% first, if usefastmethod, interpolate up all waveforms so they look nicer
+
+
+if usefastmethod
+    if ~isfield(features,'waveforms_hi')
+        x=size(mua.waveforms,2);
+        sfact = features.imagesize/x;
+        features.waveforms_hi=zeros(size(mua.waveforms,1),round(x*sfact));
+        for i=1:size( mua.waveforms,1)
+            features.waveforms_hi(i,:) = interp1(1:x,mua.waveforms(i,:),linspace(1,x,features.imagesize));
+        end;
+    end;
+end;
+
+
 
 %npoints=numel(mua.ts_spike);
 npoints=size(mua.waveforms,2);
@@ -11,17 +27,27 @@ for i=1:features.Nclusters
     inthiscluster=find(features.clusters==i);
     
     
-    if 0 % fast, not as pretty
+    if usefastmethod % fast, not as pretty
         
         ll=linspace(-features.waveformscale.*1000000000,features.waveformscale.*1000000000,features.imagesize);
         
+        grid=zeros(size(ll)); grid(round(end/2))=1;
+        
         for k=1:features.imagesize % go trough image instead of waveform points, for speed and image quality
             x = k;
-            features.clusterimages(:,x,i) = histc( mua.waveforms(inthiscluster, round(sc_remap(k,1,features.imagesize,1,size(mua.waveforms,2)))  ) , ll*6 );
+            %features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster, round(sc_remap(k,1,features.imagesize,1,size(mua.waveforms,2)))  ) , ll*6 );
+            
+            if mod(k,10)>5
+                g=grid';
+            else
+                g=0;
+            end;
+            
+            features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster, k ) , ll*4.6 ) + g;
             
         end;
         
-    else
+    else % old, slow method
         
         for j=1:numel(inthiscluster)
             
