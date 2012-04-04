@@ -10,7 +10,7 @@ useclusters=find(features.clustervisible(1:features.Nclusters));
 
 nsp=max(4,n);
 
-mseclimit=10;
+mseclimit=15;
 
 for ii=1:n
     for jj=ii:n
@@ -33,12 +33,12 @@ for ii=1:n
         
         stairs(l,c,'color',features.colors(j,:)); hold on;
         
-        if (i==1)
+        if (ii==1)
             ylabel(['cluster ',num2str(j)]);
         end;
         
-        if (j==n)
-            xlabel(['cluster - lag (ms)',num2str(i)]);
+        if (jj==n)
+            xlabel(['cluster ',num2str(i),'- lag (ms)']);
         end;
         
         plot(0,0,'k.','MarkerSize',20,'color',features.colors(i,:))
