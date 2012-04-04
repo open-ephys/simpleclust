@@ -99,6 +99,10 @@ switch muafile(end-2:end)
         mua.waveforms=cdata.waveforms;
         mua.ts=cdata.ts;
         
+        %identify bits2volt in header
+        vstart=strfind(cdata.header,'ADBitVolts')
+        mua.val2volt=str2num(cdata.header(vstart+10:vstart+24));
+        
         [pathstr, name, ext] = fileparts(muafile);
         mua.fname=[name,ext];
         
@@ -152,7 +156,9 @@ switch muafile(end-2:end)
         mua.opt=[];
         mua.header=cdata.header;
         
-        
+        %identify bits2volt in header
+        vstart=strfind(cdata.header,'ADBitVolts')
+        mua.val2volt=str2num(cdata.header(vstart+10:vstart+24));
         
         mua.ncontacts = size(mua.waveforms,1);
         
@@ -198,6 +204,11 @@ switch muafile(end-2:end)
         mua.header=cdata.header;
         
         mua.ncontacts = size(mua.waveforms,1);
+        
+        
+        %identify bits2volt in header
+        vstart=strfind(cdata.header,'ADBitVolts')
+        mua.val2volt=str2num(cdata.header(vstart+10:vstart+24));
         
         
         % flatten waveforms for display

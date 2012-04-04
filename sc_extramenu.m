@@ -1,7 +1,10 @@
 function varargout=extramenu(features,mua,x,y)
 
-pos=[-1  -.8 -.6 -.5 -.4 -.3 -.2 0.0 0.1 0.4 0.5 0.8 1 1.2 1.4];
+pos=[-1  -.8 -.6 -.5 -.4 -.3 -.2 0.0 0.1 0.4 0.5 0.8 1 1.2 1.4 1.7];
 
+
+plot([-1.3 3.3] ,[-1 -1],'color',[.7 .7 .7]);
+    
 if nargout==0 % plot
     
     i=1;
@@ -18,8 +21,6 @@ if nargout==0 % plot
     plot([1 1].*pos(i+1) ,[-1.1 -1],'color',[.7 .7 .7]);
     
     text(pos(i)+0.02,-1.05,'+PCA');
-    
-    
     
     
     
@@ -100,6 +101,14 @@ if nargout==0 % plot
     
     text(pos(i)+0.02,-1.05,['undo']);
     % features.clusters=features.clusters_undo;
+    
+    
+    i=14; % undo
+    plot([1 1].*pos(i) ,[-1.1 -1],'color',[.7 .7 .7]);
+    plot([1 1].*pos(i+1) ,[-1.1 -1],'color',[.7 .7 .7]);
+    
+    text(pos(i)+0.02,-1.05,['compare']);
+    
     
 else % evaluate x,y
     
@@ -222,9 +231,15 @@ else % evaluate x,y
     i=13; % undo
     if (x>pos(i)) && (x<pos(i+1))
       features.clusters=features.clusters_undo;
+    features=sc_updateclusterimages(features,mua);
+      
     end;
     
     
+    i=14; % compare clusters
+    if (x>pos(i)) && (x<pos(i+1))
+      sc_compare_features(features,mua);
+    end;
     
     varargout={features};
     

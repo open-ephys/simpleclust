@@ -29,7 +29,7 @@ for i=1:features.Nclusters
     
     if usefastmethod % fast, not as pretty
         
-        ll=linspace(-features.waveformscale.*1000000000,features.waveformscale.*1000000000,features.imagesize);
+        ll=(linspace(-.1,.1,features.imagesize).*4.8)./features.waveformscale;
         
         grid=zeros(size(ll)); grid(round(end/2))=1;
         
@@ -37,13 +37,20 @@ for i=1:features.Nclusters
             x = k;
             %features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster, round(sc_remap(k,1,features.imagesize,1,size(mua.waveforms,2)))  ) , ll*6 );
             
-            if mod(k,10)>5
-                g=grid';
+            if mod(k,6)<3
+                g=grid;
             else
-                g=0;
+                g=grid.*0;
             end;
             
-            features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster, k ) , ll*4.6 ) + g;
+            if numel(inthiscluster)==1
+                g=g';
+            end;
+            if numel(inthiscluster) >0
+                features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster, k ) , ll ) + g';
+            else
+                   features.clusterimages(:,x,i) =  g;
+            end;
             
         end;
         

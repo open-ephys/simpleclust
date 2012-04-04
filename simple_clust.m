@@ -1,5 +1,5 @@
 %
-%   Simple Clust v0.3
+%   Simple Clust v0.4
 %
 %   alpha version, not for redistribution
 %   email me if there's any issues or features you'd like to see added
@@ -53,7 +53,7 @@ while run
     
     
     
-    fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+    fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.93 .93 .93]);
     
     set(gca, 'position', [0 0 1 1]);
     
@@ -62,8 +62,13 @@ while run
     if ~dataloaded
         
         x=linspace(0,2*pi,80);
-        plot(sin(x).*.3,cos(x).*.3,'k','LineWidth',28,'color',[1 1 1])
-        text(0,0,'Simple Clust v0.3')
+
+        for i=2:12
+        plot(sin(x).*i.*.3,cos(x).*i.*.3,'k','LineWidth',28,'color',[.9 .9 .9])
+        end;
+             plot(sin(x).*1.*.3,cos(x).*1.*.3,'k','LineWidth',28,'color',[1 1 1])
+             
+        text(0,0,'Simple Clust v0.4')
         xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
         daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
         
