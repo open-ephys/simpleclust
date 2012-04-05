@@ -3,7 +3,6 @@ function sc_compare_features(features,mua)
 
 figure(2); clf; hold on;
 
-
 n=sum(features.clustervisible(1:features.Nclusters));
 useclusters=find(features.clustervisible(1:features.Nclusters));
 %n=features.Nclusters;
@@ -24,15 +23,15 @@ for ii=1:n
         in_b=find(features.clusters==j);
         
         if i==j % acorr
-        [l,c] =  sc_acorr(mua.ts(in_a)'.*1000, mseclimit,50);  
+            [l,c] =  sc_acorr(mua.ts(in_a)'.*1000, mseclimit,50);
         else % xcorr
-        [l,c] =  sc_sxcorr(mua.ts(in_a)'.*1000, mua.ts(in_b)'.*1000, mseclimit,50);
+            [l,c] =  sc_sxcorr(mua.ts(in_a)'.*1000, mua.ts(in_b)'.*1000, mseclimit,50);
         end;
-            
-            
+        
+        
         
         stairs(l,c,'color',features.colors(j,:)); hold on;
-        
+        xlim([min(l) max(l)]);
         if (ii==1)
             ylabel(['cluster ',num2str(j)]);
         end;
