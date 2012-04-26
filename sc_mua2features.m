@@ -40,10 +40,17 @@ daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
 drawnow;
 
 
+
 [coeffs,score]= princomp(mua.waveforms','econ');
 
-D=coeffs(:,1:8)';
-
+if size(mua.waveforms,1)>8
+    
+    D=coeffs(:,1:8)';
+    
+else
+    
+    D=zeros(size(mua.waveforms,1),8);
+end;
 %plot(coeffs(:,1),coeffs(:,2),'.','MarkerSize',.5)
 
 
@@ -137,8 +144,11 @@ for n = 1:length(mua.ts)
     
     % max. derivative
     c=c+1;
+    if numel(spike)>1
     features.data(c,n)=max(abs(diff(spike)));
-    
+    else
+        features.data(c,n)=0;
+    end;
     if n==1; features.name{c}=['maxD']; end;
     
     

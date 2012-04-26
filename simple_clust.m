@@ -5,18 +5,18 @@
 %   email me if there's any issues or features you'd like to see added
 %
 %
-%   Feb 2012, Jakob Voigts (jvoigts@mit.edu)
+%   apr 2012, Jakob Voigts (jvoigts@mit.edu)
 
 
 %{
 features 2do:
 
-- fix ISI display
+X - fix ISI display
 X- loading of simpleclust state with clusters etc intact
 X- 'remove features' button (small x) on left
 X - add ++ button that puts spikes into cluster from any other cluster even if prev. asigned
 X- ISI display
-- xcorr feature
+X- xcorr feature
 X- display multiple waveforms around where user clicke, like 10ish
 X- allow rescaling of all visible clusters, pretty much works as zoom
 X- time selection at bottom? or just add time feature?
@@ -152,7 +152,7 @@ while run
                     PathName = '/home/jvoigts/Dropbox/em003/good/';
                     FileName =  'ST11.nse';
                 else
-                    [FileName,PathName,FilterIndex] = uigetfile({'*.mat', 'matlab file';'*.nse',  'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
+                    [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
                     
                 end;
                 
@@ -186,7 +186,7 @@ while run
                 
                 if strcmp(button,'Yes')
                     features.loadmultiple=1;
-                    [FileName,PathName,FilterIndex] = uigetfile({'*.mat', 'matlab file';'*.nse',  'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose files for other channels','MultiSelect','on');
+                    [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose files for other channels','MultiSelect','on');
                     features.otherchannelfiles=FileName;
                     
                     [features,mua]=sc_addotherchannelstomua(features,mua);
