@@ -145,7 +145,7 @@ for n = 1:length(mua.ts)
     % max. derivative
     c=c+1;
     if numel(spike)>1
-    features.data(c,n)=max(abs(diff(spike)));
+        features.data(c,n)=max(abs(diff(spike)));
     else
         features.data(c,n)=0;
     end;

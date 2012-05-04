@@ -28,7 +28,17 @@ X- make selection polygon same color as the cluster
 X - automatically scale waveforms when loading (scaling by 95 quantile of all waveforms)
 X - proper zoom function
 X - detection of spike overlaps over many channels
-
+ - ma keeoverlap faster by doing histogram method by default  
+ - do overlap as percent of channels
+ - improve label selection
+ - fix spike.waveform_ts lenght in tetrodes (is sized for st)
+ - dsplay ch in overlap selection
+ - add progress bar for initial waveform supersampling,
+ - try to improve waveform supersampling speed (do linear?)
+ - do . display by default, not x, increase default displynum to 30000
+ - allow to change color
+ - save selected color for plotting in later analysis?
+- add template matching to selected cluster?
 %}
 
 run=1;

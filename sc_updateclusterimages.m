@@ -7,7 +7,7 @@ usefastmethod =1;
 
 
 if usefastmethod
-    if ~isfield(features,'waveforms_hi')
+    if ~isfield(features,'waveforms_hi') % this takes up time in the first pass
         x=size(mua.waveforms,2);
         sfact = features.imagesize/x;
         features.waveforms_hi=zeros(size(mua.waveforms,1),round(x*sfact));
@@ -15,12 +15,17 @@ if usefastmethod
             features.waveforms_hi(i,:) = interp1(1:x,mua.waveforms(i,:),linspace(1,x,features.imagesize));
         end;
     end;
+    
+    features.clusterimages=zeros(features.imagesize,features.imagesize,features.Nclusters);
+    
 end;
 
 
 
 %npoints=numel(mua.ts_spike);
 npoints=size(mua.waveforms,2);
+
+ll=(linspace(-.1,.1,features.imagesize).*4.8)./features.waveformscale;
 
 for i=1:features.Nclusters
     
@@ -29,7 +34,6 @@ for i=1:features.Nclusters
     
     if usefastmethod % fast, not as pretty
         
-        ll=(linspace(-.1,.1,features.imagesize).*4.8)./features.waveformscale;
         
         grid=zeros(size(ll)); grid(round(end/2))=1;
         
@@ -49,7 +53,7 @@ for i=1:features.Nclusters
             if numel(inthiscluster) >0
                 features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster, k ) , ll ) + g';
             else
-                   features.clusterimages(:,x,i) =  g;
+                features.clusterimages(:,x,i) =  g;
             end;
             
         end;
