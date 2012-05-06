@@ -28,17 +28,17 @@ X- make selection polygon same color as the cluster
 X - automatically scale waveforms when loading (scaling by 95 quantile of all waveforms)
 X - proper zoom function
 X - detection of spike overlaps over many channels
- - ma keeoverlap faster by doing histogram method by default  
- - do overlap as percent of channels
- - improve label selection
- - fix spike.waveform_ts lenght in tetrodes (is sized for st)
- - dsplay ch in overlap selection
- - add progress bar for initial waveform supersampling,
- - try to improve waveform supersampling speed (do linear?)
- - do . display by default, not x, increase default displynum to 30000
+X - ma keeoverlap faster by doing histogram method by default
+X - do overlap as percent of channels
+X - improve label selection
+X - fix spike.waveform_ts lenght in tetrodes (is sized for st)
+X - dsplay ch in overlap selection
+X - add progress bar for initial waveform supersampling,
+X - try to improve waveform supersampling speed (do linear?)
+X - do . display by default, not x, increase default displynum to 30000
  - allow to change color
  - save selected color for plotting in later analysis?
-- add template matching to selected cluster?
+ - add template matching to selected cluster?
 %}
 
 run=1;
@@ -50,6 +50,14 @@ debuginput = [0 0 0];
 
 %addpath(pwd);
 %addpath(fullfile(pwd,'read_cheetah'));
+
+s_opt=[];
+
+s_opt.auto_overlap =1; % automatically loads other channels from same recording and computes spike overlap
+s_opt.auto_overlap_max =0; %if >0, limits how many other channels are loaded
+
+s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
+s_opt.auto_noise_trs = .5; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
 
 if numel(strfind(path,'read_cheetah')) ==0
     error('make sure the read_cheetah dir is in your matlab path');
@@ -72,12 +80,12 @@ while run
     if ~dataloaded
         
         x=linspace(0,2*pi,80);
-
+        
         for i=2:12
-        plot(sin(x).*i.*.3,cos(x).*i.*.3,'k','LineWidth',28,'color',[.9 .9 .9])
+            plot(sin(x).*i.*.3,cos(x).*i.*.3,'k','LineWidth',28,'color',[.9 .9 .9])
         end;
-             plot(sin(x).*1.*.3,cos(x).*1.*.3,'k','LineWidth',28,'color',[1 1 1])
-             
+        plot(sin(x).*1.*.3,cos(x).*1.*.3,'k','LineWidth',28,'color',[1 1 1])
+        
         text(0,0,'Simple Clust v0.4')
         xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
         daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
@@ -187,25 +195,69 @@ while run
                 % ask to load other files
                 % this can be used to make a feature that counts how many
                 % channels a spike occurs in simultaneously
-                if debugstate >0
-                    button='no';
-                else
+                if s_opt.auto_overlap % automatically load all others
                     
-                    button = questdlg('Open other channnels from same recording?','open?','Yes','No','Yes');
-                end;
-                
-                if strcmp(button,'Yes')
                     features.loadmultiple=1;
-                    [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose files for other channels','MultiSelect','on');
-                    features.otherchannelfiles=FileName;
+                    otherfiles=[dir([PathName,'*.ntt']) ;dir([PathName,'*.nst']) ;dir([PathName,'*.nse'])];
+                    
+                    cc=1;j=0;
+                    
+                    while cc && (j<=numel(otherfiles))   % throw put current channel
+                        j=j+1;
+                        if strcmp(otherfiles(j).name,mua.fname)
+                            otherfiles(j)=[]; cc=0;
+                        end;
+                    end;
+                    
+                    if s_opt.auto_overlap_max > 0  % cut down to limits
+                        otherfiles=otherfiles(1:min(minel(otherfiles),s_opt.auto_overlap_max));
+                    end;
+                    
+                    
+                    features.otherchannelfiles={otherfiles.name};
                     
                     [features,mua]=sc_addotherchannelstomua(features,mua);
                     
-                else
-                    features.loadmultiple=0;
+                    
+                    if s_opt.auto_noise
+                        
+                        features.clusterlabels(2)=2; % make 2nd cluster 'noise'
+                        features.clustervisible(2)=0; % make invisible
+                        
+                        fn=find(strcmp(features.name,'Ch.overlap')); % find feature
+                        if numel(fn)==0
+                            error('selected automatic noise rejection but not Ch.overlap feature found!');
+                        end;
+                        
+                        ii= features.data(fn,:)>s_opt.auto_noise_trs;
+                        features.clusters(ii)=2; % assign
+                        
+                        features=sc_updateclusterimages(features,mua);
+                        
+                    end;
+                    
+                    
+                    
+                else % select manually
+                    if debugstate >0
+                        button='no';
+                    else
+                        
+                        button = questdlg('Open other channnels from same recording?','open?','Yes','No','Yes');
+                    end;
+                    
+                    if strcmp(button,'Yes')
+                        features.loadmultiple=1;
+                        [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files for other channels (vs ch ',num2str(spikes.sourcechannel),')'],'MultiSelect','on');
+                        features.otherchannelfiles=FileName;
+                        
+                        [features,mua]=sc_addotherchannelstomua(features,mua);
+                        
+                    else
+                        features.loadmultiple=0;
+                    end;
+                    
                 end;
-                
-                
                 
                 dataloaded=1;
                 

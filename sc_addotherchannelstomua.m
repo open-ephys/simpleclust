@@ -24,6 +24,9 @@ end;
 
 % now compute 'overlap' feature
 
+N_compare=numel( mua.otherchannels); % how many otther channels are there
+
+
 use_loop=0; % do loop method, or straight huge histograms?
 
 features.numextrafeaatures=features.numextrafeaatures+1;
@@ -95,14 +98,14 @@ if use_loop
     
 else % just use histograms
     
-    tbins=[min(mua.ts):0.2/1000:max(mua.ts)]; % make .5ms bins (this will blow up for big files on small machines)
+    tbins=[min(mua.ts):0.1/1000:max(mua.ts)]; % make .1ms +-1 ms bins (this will blow up for big files on small machines)
     
     
     Noverlap=zeros(size(mua.ts));
     
     h_this=sparse(zeros(numel(tbins), 1));
     [h_this,this_bins]=histc(mua.ts ,tbins);
-    h_this=conv(h_this,[.25 .5 .25],'same'); % avoid edge effects
+    h_this=conv(h_this,[.5  1 .5],'same'); % avoid edge effects
     
    % h_others=sparse(zeros(numel(tbins), numel(mua.otherchannels) ));
     for j=1:numel(mua.otherchannels)
@@ -113,6 +116,6 @@ else % just use histograms
     
     
 end;
-features.data(end+1,:)=Noverlap;
+features.data(end+1,:)=Noverlap/N_compare;
 
 features=sc_scale_features(features);

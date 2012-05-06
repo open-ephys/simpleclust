@@ -8,6 +8,11 @@ function features = mua2features(mua)
 
 D=mua.waveforms;
 
+if size(D,2)>size(D,1)
+error('fewer spikes than samples in waveform, sorting this doesnt make much sense');
+% simply padding D will probbaly fix this if you really want to sort something like this
+end;
+
 %% get Wavelet coeffs
 
 

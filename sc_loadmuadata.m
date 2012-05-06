@@ -106,7 +106,6 @@ switch muafile(end-2:end)
         [pathstr, name, ext] = fileparts(muafile);
         mua.fname=[name,ext];
         
-        mua.ts_spike=linspace(-.5,.5,32); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
         
         mua.opt=[];
         mua.header=cdata.header;
@@ -119,7 +118,7 @@ switch muafile(end-2:end)
         
         D= (squeeze(reshape(mua.waveforms,1,32,size(mua.waveforms,3))));
         mua.waveforms=[D(1:end,:)]';
-        mua.ts_spike=linspace(-.5,1.5,32);
+        mua.ts_spike=linspace(-.5,0.5,32);  %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
         
         if dofeatures
             features=sc_mua2features(mua);
@@ -151,7 +150,6 @@ switch muafile(end-2:end)
         [pathstr, name, ext] = fileparts(muafile);
         mua.fname=[name,ext];
         
-        mua.ts_spike=linspace(-.5,.5,32); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
         
         mua.opt=[];
         mua.header=cdata.header;
@@ -166,7 +164,7 @@ switch muafile(end-2:end)
         
         D= (squeeze(reshape(mua.waveforms,1,64,size(mua.waveforms,3))));
         mua.waveforms=[D(1:2:end,:);D(2:2:end,:)]';
-        mua.ts_spike=linspace(-.5,1.5,64);
+        mua.ts_spike=linspace(-.5,1.5,64); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
         
         if dofeatures
             features=sc_mua2features(mua);
@@ -198,7 +196,6 @@ switch muafile(end-2:end)
         [pathstr, name, ext] = fileparts(muafile);
         mua.fname=[name,ext];
         
-        mua.ts_spike=linspace(-.5,.5,128); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
         
         mua.opt=[];
         mua.header=cdata.header;
@@ -215,7 +212,10 @@ switch muafile(end-2:end)
         
         D= (squeeze(reshape(mua.waveforms,1,128,size(mua.waveforms,3))));
         mua.waveforms=[D(1:4:end,:);D(2:4:end,:);D(3:4:end,:);D(4:4:end,:)]';
-        mua.ts_spike=linspace(-.5,1.5,64);
+ 
+        
+        mua.ts_spike=linspace(-.5,3.5,128); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
+        
         
         if dofeatures
             features=sc_mua2features(mua);
@@ -242,7 +242,7 @@ if ~skipsetup
     
     
     %features.clusters(1:100)=2;
-    features.labelcategories = {' ','noise','negative','unit','big','wide','thin'};
+    features.labelcategories = {' ','noise','unit','big','wide','thin','small','unit_{fs}','unit_{rs}','negative'};
     
     features.clusterfstrs={'k.','b.','r.','g.','c.','r.','k.','r.','b.'};
     features.colors=[.7 .7 .7; 1 0 0; 0 1 0; 0 0 1; 1 .7 0; 1 .2 1; 0 1 1; 1 .5 0; .5 1 0; 1 0 .5];
@@ -263,12 +263,12 @@ if ~skipsetup
     features.highlight = 0;
     features.clusterimages=ones(features.imagesize,features.imagesize,12);
     features.selected=0;
-    features.plotsize=1;
+    features.plotsize=0;
     
     features.timeselectwidth=200;
     features.timeselection=0;
     
-    features.Ndisplay=15000;
+    features.Ndisplay=25000;
     
     for i=1:1
         features.isioptions(1).tmax=10;
