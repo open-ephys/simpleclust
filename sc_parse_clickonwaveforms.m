@@ -13,8 +13,7 @@ for i=1:features.Nclusters
     xo=(xpos(i)*(psize+.01))+.05;
     yo=-(ypos(i)*(psize+.01))+1;
     
-    
-    
+   
     
     if (x> 1+xo) && (x<1+xo+psize) && (y>yo) && (y<psize+yo) % find waveform display that click is in
         
@@ -71,7 +70,7 @@ for i=1:features.Nclusters
                 features.clusterlabels(i)=m;
             end;
             
-        elseif ((x-xo)+(y-yo))>0.88 % click on +/options button
+        elseif ((x-xo)+(y-yo))>2.2 % click on +/options button
             
             im=-((features.clusterimages(:,:,i)./max(max(features.clusterimages(:,:,i))) ).^(.6));
             imagesc( linspace(1,1+psize,features.imagesize)+xo , linspace(0,psize,features.imagesize)+yo , im/2 );
