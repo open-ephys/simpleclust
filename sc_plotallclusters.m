@@ -23,10 +23,22 @@ for i=1:features.Nclusters
     if i==1
         text(xo+1.1 ,yo+0.02,['N: ',num2str(sum(features.clusters==i)),' (MUA/null cluster)'],'color',[0 0 0]);
     else
-        text(xo+1.1 ,yo+0.02,['N: ',num2str(sum(features.clusters==i)),' ',features.labelcategories{features.clusterlabels(i)}],'color',[0 0 0]);
+        if features.clusterlabels(i)>1 % if there is a label
+            text(xo+1.1 ,yo+0.02,['N: ',num2str(sum(features.clusters==i)),' ',features.labelcategories{features.clusterlabels(i)}],'color',[0 0 0]);
+        else
+            text(xo+1.1 ,yo+0.02,['N: ',num2str(sum(features.clusters==i)),' ',features.labelcategories{features.clusterlabels(i)}],'color',[0 0 0]);
+            text(xo+1.35 ,yo+0.02,'(no tag)', 'color',[0 0 0],'BackgroundColor',[1 .9 .7]);
+        end;
+        
     end;
     
-    if i>1
+        
+    if i>0 % plot options symbol
+        plot( [1.0 0.9]+xo+psize , [psize-0.1 psize]+yo,'k'); % diagonal line
+        text(xo+0.96+psize,yo+psize-0.02,'+');
+    end;
+    
+    if i>1 % plot tag symbol
         plot( [1 1.1]+xo , [psize-0.1 psize]+yo,'k'); % diagonal line
         text(xo+1.01,yo+psize-0.02,'tag');
     end;

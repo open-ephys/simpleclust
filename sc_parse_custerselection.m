@@ -73,8 +73,11 @@ if (x>-1) && (y> 1)
         disp('ADD');
         features.Nclusters=features.Nclusters+1;
         
+        plot([0 0.15]-1+(0.2*(i)) +.02,[1 1].*1.1,'k','LineWidth',15,'color',.70.*[1 1 1]);
+        plot([0.075 0.075]-1+(0.2*(i)) +.02,[0 0.15]+1.02,'k','LineWidth',15,'color',.70.*[1 1 1]);
         
-        text(-1+(0.2*(i)) +.04,1.10,'+new+','color',[1 0 0])
+        
+        text(-1+(0.2*(i)) +.1,1.04,'+new','color',[1 0 0])
         drawnow;
         
         features=sc_add_to_cluster(features,features.Nclusters);

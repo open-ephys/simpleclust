@@ -56,6 +56,7 @@ switch muafile(end-2:end)
                 % we just loaded previous simple_clust data
                 % in theory there should be nothing left to do here?
                 skipsetup=1;
+                features.skipsetup=1; % so the main program doesnt try to run scripts like auto noise rejection again
                 
             else
                 
@@ -242,7 +243,7 @@ if ~skipsetup
     
     
     %features.clusters(1:100)=2;
-    features.labelcategories = {' ','noise','unit','big','wide','thin','small','unit_{fs}','unit_{rs}','negative'};
+    features.labelcategories = {' ','noise','unit','big','wide','thin','small','unit_{FS}','unit_{RS}','negative','artefact',''};
     
     features.clusterfstrs={'k.','b.','r.','g.','c.','r.','k.','r.','b.'};
     features.colors=[.7 .7 .7; 1 0 0; 0 1 0; 0 0 1; 1 .7 0; 1 .2 1; 0 1 1; 1 .5 0; .5 1 0; 1 0 .5];

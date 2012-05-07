@@ -53,8 +53,8 @@ debuginput = [0 0 0];
 
 s_opt=[];
 
-s_opt.auto_overlap =1; % automatically loads other channels from same recording and computes spike overlap
-s_opt.auto_overlap_max =0; %if >0, limits how many other channels are loaded
+s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap
+s_opt.auto_overlap_max = 6; %if >0, limits how many other channels are loaded
 
 s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
 s_opt.auto_noise_trs = .5; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
@@ -195,7 +195,12 @@ while run
                 % ask to load other files
                 % this can be used to make a feature that counts how many
                 % channels a spike occurs in simultaneously
-                if s_opt.auto_overlap % automatically load all others
+                
+                if ~isfield(features,'skipsetup') % backwards comp. - if no field, assume its not a prev. simpleclust file
+                    features.skipsetup=0;
+                end;
+                
+                if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
                     
                     features.loadmultiple=1;
                     otherfiles=[dir([PathName,'*.ntt']) ;dir([PathName,'*.nst']) ;dir([PathName,'*.nse'])];
@@ -210,7 +215,7 @@ while run
                     end;
                     
                     if s_opt.auto_overlap_max > 0  % cut down to limits
-                        otherfiles=otherfiles(1:min(minel(otherfiles),s_opt.auto_overlap_max));
+                        otherfiles=otherfiles(1:min(numel(otherfiles),s_opt.auto_overlap_max));
                     end;
                     
                     
@@ -229,7 +234,7 @@ while run
                             error('selected automatic noise rejection but not Ch.overlap feature found!');
                         end;
                         
-                        ii= features.data(fn,:)>s_opt.auto_noise_trs;
+                        ii= features.data(fn(1),:)>s_opt.auto_noise_trs;
                         features.clusters(ii)=2; % assign
                         
                         features=sc_updateclusterimages(features,mua);

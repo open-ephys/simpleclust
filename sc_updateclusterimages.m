@@ -3,39 +3,40 @@ function features=sc_updateclusterimages(features,mua);
 features.clusterimages=zeros(features.imagesize,features.imagesize,12);
 
 usefastmethod =1;
+
+
 % first, if usefastmethod, interpolate up all waveforms so they look nicer
-
-
 if usefastmethod
     if ~isfield(features,'waveforms_hi') % this takes up time in the first pass
         x=size(mua.waveforms,2);
+        L_im=linspace(1,x,features.imagesize);
         sfact = features.imagesize/x;
         features.waveforms_hi=zeros(size(mua.waveforms,1),round(x*sfact));
         
         
         for i=1:size( mua.waveforms,1)
             
-            if mod(i,2000)==0
-            clf; hold on;
-            fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
-            
-            plot(linspace(1,3,numel(features.waveforms_hi(i-1,:))) , 1.0*features.waveforms_hi(i-1,:)/max(features.waveforms_hi(i-1,:)) ,'k','LineWidth',22,'color',[.9 .9 .9])
-            
-            
-            xx=linspace(0,2*pi*(i/size( mua.waveforms,1)),100);
-            plot(sin(xx).*.4,cos(xx).*.4,'k','LineWidth',22,'color',[.85 .85 .85])
-            text(0,0,['interpolating waveforms']);
-            
-            xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
-            daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
-            
-            
-            drawnow;
+            if mod(i,4000)==0
+                clf; hold on;
+                fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+                
+                plot(linspace(1,3,numel(features.waveforms_hi(i-1,:))) , 0.9*features.waveforms_hi(i-1,:)/max(features.waveforms_hi(i-1,:)) ,'k','LineWidth',22,'color',.93.*[1 1 1])
+                
+                
+                xx=linspace(0,2*pi*(i/size( mua.waveforms,1)),100);
+                plot(sin(xx).*.4,cos(xx).*.4,'k','LineWidth',22,'color',[.85 .85 .85])
+                text(0,0,['interpolating waveforms']);
+                
+                xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+                daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
+                
+                
+                drawnow;
             end;
             
             
             
-            features.waveforms_hi(i,:) = interp1(1:x,mua.waveforms(i,:),linspace(1,x,features.imagesize), 'linear'); % use linear for speed
+            features.waveforms_hi(i,:) = interp1(1:x,mua.waveforms(i,:),L_im, 'linear'); % use 'linear' for speed or even 'nearest'
         end;
     end;
     
