@@ -97,6 +97,9 @@ features.data=zeros(6,length(mua.ts));
 
 lastpercent=0;
 
+features.ts=mua.ts;
+features.id=[1:length(mua.ts)];
+    
 for n = 1:length(mua.ts)
     
     
@@ -122,8 +125,6 @@ for n = 1:length(mua.ts)
     
     spike = squeeze(mua.waveforms(n,:))./20;
     
-    features.ts(n)=mua.ts(n);
-    features.id(n)=n;
     
     
     % spike time
