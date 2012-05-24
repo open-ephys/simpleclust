@@ -1,4 +1,4 @@
-function [features,mua]=sc_loadmuadata(muafile, dofeatures)
+function [features,mua]=sc_loadmuadata(muafile, dofeatures,s_opt)
 
 
 
@@ -15,15 +15,35 @@ switch muafile(end-2:end)
             
             if exist('times_all') % marker for doreas mat format
                 
-                
                 if dofeatures
-                    prompt = {['source channel nr for file ',muafile]};
-                    dlg_title = 'channel nr';
-                    num_lines = 1;
-                    def = {''};
-                    features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-                    features.sourcechannel= str2num(features.chnumstr{1});
-                    sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                    if s_opt.auto_number==0
+                        prompt = {['source channel nr for file ',muafile]};
+                        dlg_title = 'channel nr';
+                        num_lines = 1;
+                        def = {''};
+                        features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+                        features.sourcechannel= str2num(features.chnumstr{1});
+                        sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                    else
+                        
+                        %do it automatically
+                        [~,n,~]=fileparts(muafile)
+                        disp('automatically detecting ch number for');
+                        disp(muafile);
+                        
+                        
+                        nind=find(ismember(n, '0':'9'));
+                        if numel(nind)>2 || numel(nind)==0
+                            error('for automatic channel numbering make sure the mua filenames contain just one number between 1 and 99 ');
+                        end;
+                        ch=str2num(n(nind));
+                        disp(['-> ch ',num2str(ch)]);
+                        features.chnumstr = ch;
+                        features.sourcechannel= ch;
+                        sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                        
+                    end;
+                    
                 end;
                 
                 % load doreas format
@@ -77,18 +97,34 @@ switch muafile(end-2:end)
     case 'nse'
         
         if dofeatures
-            global debugstate
-            if debugstate > 0
-                features.chnumstr{1} = '3';
-            else
+            if s_opt.auto_number==0
                 prompt = {['source channel nr for file ',muafile]};
                 dlg_title = 'channel nr';
                 num_lines = 1;
                 def = {''};
                 features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+                features.sourcechannel= str2num(features.chnumstr{1});
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+            else
+                
+                %do it automatically
+                [~,n,~]=fileparts(muafile)
+                disp('automatically detecting ch number for');
+                disp(muafile);
+                
+                
+                nind=find(ismember(n, '0':'9'));
+                if numel(nind)>2 || numel(nind)==0
+                    error('for automatic channel numbering make sure the mua filenames contain just one number between 1 and 99 ');
+                end;
+                ch=str2num(n(nind));
+                disp(['-> ch ',num2str(ch)]);
+                features.chnumstr = ch;
+                features.sourcechannel= ch;
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                
             end;
-            features.sourcechannel= str2num(features.chnumstr{1});
-            sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+            
         end;
         
         cdata = read_cheetah_data(muafile);
@@ -128,17 +164,36 @@ switch muafile(end-2:end)
         
     case 'nst'
         
-        
         if dofeatures
-            prompt = {['source channel nr for file ',muafile]};
-            dlg_title = 'channel nr';
-            num_lines = 1;
-            def = {''};
-            features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-            features.sourcechannel= str2num(features.chnumstr{1});
-            sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+            if s_opt.auto_number==0
+                prompt = {['source channel nr for file ',muafile]};
+                dlg_title = 'channel nr';
+                num_lines = 1;
+                def = {''};
+                features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+                features.sourcechannel= str2num(features.chnumstr{1});
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+            else
+                
+                %do it automatically
+                [~,n,~]=fileparts(muafile)
+                disp('automatically detecting ch number for');
+                disp(muafile);
+                
+                
+                nind=find(ismember(n, '0':'9'));
+                if numel(nind)>2 || numel(nind)==0
+                    error('for automatic channel numbering make sure the mua filenames contain just one number between 1 and 99 ');
+                end;
+                ch=str2num(n(nind));
+                disp(['-> ch ',num2str(ch)]);
+                features.chnumstr = ch;
+                features.sourcechannel= ch;
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                
+            end;
+            
         end;
-        
         cdata = read_cheetah_data(muafile);
         %mua = load_neuralynx_mua(muafile);
         
@@ -176,15 +231,35 @@ switch muafile(end-2:end)
         
         
         if dofeatures
-            prompt = {['source channel nr for file ',muafile]};
-            dlg_title = 'channel nr';
-            num_lines = 1;
-            def = {''};
-            features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
-            features.sourcechannel= str2num(features.chnumstr{1});
-            sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+            if s_opt.auto_number==0
+                prompt = {['source channel nr for file ',muafile]};
+                dlg_title = 'channel nr';
+                num_lines = 1;
+                def = {''};
+                features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+                features.sourcechannel= str2num(features.chnumstr{1});
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+            else
+                
+                %do it automatically
+                [~,n,~]=fileparts(muafile)
+                disp('automatically detecting ch number for');
+                disp(muafile);
+                
+                
+                nind=find(ismember(n, '0':'9'));
+                if numel(nind)>2 || numel(nind)==0
+                    error('for automatic channel numbering make sure the mua filenames contain just one number between 1 and 99 ');
+                end;
+                ch=str2num(n(nind));
+                disp(['-> ch ',num2str(ch)]);
+                features.chnumstr = ch;
+                features.sourcechannel= ch;
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                
+            end;
+            
         end;
-        
         cdata = read_cheetah_data(muafile);
         %mua = load_neuralynx_mua(muafile);
         
@@ -213,7 +288,7 @@ switch muafile(end-2:end)
         
         D= (squeeze(reshape(mua.waveforms,1,128,size(mua.waveforms,3))));
         mua.waveforms=[D(1:4:end,:);D(2:4:end,:);D(3:4:end,:);D(4:4:end,:)]';
- 
+        
         
         mua.ts_spike=linspace(-.5,3.5,128); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
         
@@ -243,7 +318,7 @@ if ~skipsetup
     
     
     %features.clusters(1:100)=2;
-    features.labelcategories = {' ','noise','unit','big','wide','thin','small','unit_{FS}','unit_{RS}','negative','artefact',''};
+    features.labelcategories = {' ','noise','unit','unit_{FS}','unit_{RS}','unit_{huge}','mua big','mua wide','mua thin','mua small','negative','artefact',};
     
     features.clusterfstrs={'k.','b.','r.','g.','c.','r.','k.','r.','b.'};
     features.colors=[.7 .7 .7; 1 0 0; 0 1 0; 0 0 1; 1 .7 0; 1 .2 1; 0 1 1; 1 .5 0; .5 1 0; 1 0 .5];

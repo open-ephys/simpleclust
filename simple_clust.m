@@ -36,6 +36,7 @@ X - dsplay ch in overlap selection
 X - add progress bar for initial waveform supersampling,
 X - try to improve waveform supersampling speed (do linear?)
 X - do . display by default, not x, increase default displynum to 30000
+- add batch process functions
  - allow to change color
  - save selected color for plotting in later analysis?
  - add template matching to selected cluster?
@@ -58,6 +59,9 @@ s_opt.auto_overlap_max = 6; %if >0, limits how many other channels are loaded
 
 s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
 s_opt.auto_noise_trs = .5; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
+
+s_opt.auto_number =1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data
+
 
 if numel(strfind(path,'read_cheetah')) ==0
     error('make sure the read_cheetah dir is in your matlab path');
@@ -91,7 +95,29 @@ while run
         daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
         
         
+        fill([-1.2 -1 -1 -1.2],[1 1 1.2 1.2]-0.2,'b','FaceColor',[.9 .9 .9]);
+        
+        text(-1.18,1.05-0.2,'batch prep');
+        plot([-1.2 -1],[1.1 1.1]-0.2,'color',[0 0 0]);
+        text(-1.18,1.15-0.2,'batch run');
+        
+        plot([-1.2 -1],[1 1],'color',[.0 .0 .0]);
+        
+        
+        
     end;
+    
+    fill([-1.2 -1 -1 -1.2],[1 1 1.2 1.2],'b','FaceColor',[.9 .9 .9]);
+    
+    text(-1.18,1.05,'save/exit');
+    plot([-1.2 -1],[1.1 1.1],'color',[0 0 0]);
+    text(-1.18,1.15,'open');
+    
+    plot([-1.2 -1],[1 1],'color',[.7 .7 .7]);
+    
+    xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+    daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
+    
     
     if dataloaded
         
@@ -113,23 +139,34 @@ while run
         
         features.highlight = 0; % remove highlight on each click
     end;
-    fill([-1.2 -1 -1 -1.2],[1 1 1.2 1.2],'b','FaceColor',[.9 .9 .9]);
-    
-    text(-1.18,1.05,'save/exit');
-    plot([-1.2 -1],[1.1 1.1],'color',[0 0 0]);
-    text(-1.18,1.15,'open');
-    
-    plot([-1.2 -1],[1 1],'color',[.7 .7 .7]);
-    
-    xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
-    daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
     
     
     
-    [x,y,b] = sc_ginput(1);
     
-    %   debuginput(end+1,1:3)=[x y b]; % for recording debug input sequence
-    %disp(b);
+    [x,y,b] = sc_ginput(1)
+    
+    
+    if (x<-1)&& (y>0.9) && (y<1) % batch (pre)process
+        
+        [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files to preprocess'],'MultiSelect','on');
+        
+        
+        for b=1:numel(FileName)
+            
+            features.muafile =[PathName,FileName{b}];
+            
+            fprintf('processing file %d of %d \n',b,numel(FileName));
+            
+            sc_load_mua_dialog;
+            sc_save_dialog;
+            
+        end;
+        
+    end;
+    
+    if (x<-1)&& (y>0.9) && (y<1) % batch run - open folder of simpleclust files and loop trough sorting them one at a time
+        disp('not implemented yet');
+    end;
     
     
     if dataloaded
@@ -183,88 +220,7 @@ while run
                 
                 
                 %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
-                [features,mua]=sc_loadmuadata(features.muafile,1);
-                
-                
-                
-                features.muafilepath =[PathName];
-                features.muafile =[PathName,FileName];
-                % cd(PathName); % for faster selection of later input files
-                features.muafile_justfile =FileName;
-                
-                % ask to load other files
-                % this can be used to make a feature that counts how many
-                % channels a spike occurs in simultaneously
-                
-                if ~isfield(features,'skipsetup') % backwards comp. - if no field, assume its not a prev. simpleclust file
-                    features.skipsetup=0;
-                end;
-                
-                if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
-                    
-                    features.loadmultiple=1;
-                    otherfiles=[dir([PathName,'*.ntt']) ;dir([PathName,'*.nst']) ;dir([PathName,'*.nse'])];
-                    
-                    cc=1;j=0;
-                    
-                    while cc && (j<=numel(otherfiles))   % throw put current channel
-                        j=j+1;
-                        if strcmp(otherfiles(j).name,mua.fname)
-                            otherfiles(j)=[]; cc=0;
-                        end;
-                    end;
-                    
-                    if s_opt.auto_overlap_max > 0  % cut down to limits
-                        otherfiles=otherfiles(1:min(numel(otherfiles),s_opt.auto_overlap_max));
-                    end;
-                    
-                    
-                    features.otherchannelfiles={otherfiles.name};
-                    
-                    [features,mua]=sc_addotherchannelstomua(features,mua);
-                    
-                    
-                    if s_opt.auto_noise
-                        
-                        features.clusterlabels(2)=2; % make 2nd cluster 'noise'
-                        features.clustervisible(2)=0; % make invisible
-                        
-                        fn=find(strcmp(features.name,'Ch.overlap')); % find feature
-                        if numel(fn)==0
-                            error('selected automatic noise rejection but not Ch.overlap feature found!');
-                        end;
-                        
-                        ii= features.data(fn(1),:)>s_opt.auto_noise_trs;
-                        features.clusters(ii)=2; % assign
-                        
-                        features=sc_updateclusterimages(features,mua);
-                        
-                    end;
-                    
-                    
-                    
-                else % select manually
-                    if debugstate >0
-                        button='no';
-                    else
-                        
-                        button = questdlg('Open other channnels from same recording?','open?','Yes','No','Yes');
-                    end;
-                    
-                    if strcmp(button,'Yes')
-                        features.loadmultiple=1;
-                        [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files for other channels (vs ch ',num2str(spikes.sourcechannel),')'],'MultiSelect','on');
-                        features.otherchannelfiles=FileName;
-                        
-                        [features,mua]=sc_addotherchannelstomua(features,mua);
-                        
-                    else
-                        features.loadmultiple=0;
-                    end;
-                    
-                end;
-                
-                dataloaded=1;
+                sc_load_mua_dialog;
                 
             else
                 run=0;
@@ -280,34 +236,7 @@ while run
                 if strcmp(button,'Save')
                     
                     
-                    % save result to simplified spikes objects
-                    spikes=[];
-                    %  if numel(mua.opt.projectpath)>0
-                    %  spikes.projectpath=mua.opt.projectpath;
-                    %  end;
-                    spikes.sourcefile = features.muafile;
-                    spikes.ts=features.ts;
-                    spikes.cluster_is=features.clusters;
-                    spikes.labelcategories=features.labelcategories;
-                    spikes.clusterlabels=features.clusterlabels;
-                    spikes.sourcechannel=features.sourcechannel;
-                    
-                    spikes.Nspikes=mua.Nspikes;
-                    
-                    spikes.waveforms=mua.waveforms;
-                    spikes.waveforms_ts=mua.ts_spike;
-                    
-                    %outfilename=[spikes.sourcefile(1:end-4),'_clustered.mat'];
-                    outfilename=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_clustered.mat'];
-                    save(outfilename,'spikes');
-                    
-                    % save simpleclust state so we can just load it again
-                    % if needed
-                    outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
-                    save(outfilename_sc,'features','mua');
-                    
-                    disp(['saved to ',outfilename,' output for using in science']);
-                    disp(['saved to ',outfilename_sc,' can be loaded with simpleclust']);
+                    sc_save_dialog;
                     
                     run=0;
                 end;
