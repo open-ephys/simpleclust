@@ -21,7 +21,10 @@ outfilename=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_clustered
 d=dir(outfilename);
 if numel(d)>0
     button = questdlg(['overwrite   ',outfilename,'   ?'],'file exists already','Yes','No','Yes');
-    
+else
+    button='Yes';
+end;
+
     if strcmp(button,'Yes')
         
         
@@ -39,4 +42,4 @@ if numel(d)>0
         disp('aborted saving open files');
         
     end;
-end;
+    
