@@ -1,7 +1,8 @@
 function features=remove_from_cluster(features,i,featureselects)
 
 
-[px,py] =sc_getpolygon;
+[px,py] =sc_getpolygon(features,features.colors(i,:));
+
 
 
 if i>1

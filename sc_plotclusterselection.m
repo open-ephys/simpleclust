@@ -39,7 +39,7 @@ for i=1:features.Nclusters
     
     text(-1+(0.2*(i-1)) +.04 ,1.08,'+');
     text(-1+(0.2*(i-1)) +.14 ,1.06,'*');
-
+    
     text(-1+(0.2*(i-1)) +.04 ,1.02,'++');
     text(-1+(0.2*(i-1)) +.14 ,1.02,'-');
     
@@ -47,9 +47,13 @@ for i=1:features.Nclusters
     
 end;
 
-text(-1+(0.2*(i)) +.04,1.10,'+new+')
+plot([0 0.15]-1+(0.2*(i)) +.02,[1 1].*1.1,'k','LineWidth',15,'color',.85.*[1 1 1]);
+plot([0.075 0.075]-1+(0.2*(i)) +.02,[0 0.15]+1.02,'k','LineWidth',15,'color',.85.*[1 1 1]);
+
+
+text(-1+(0.2*(i)) +.1,1.04,'+new');
 plot([0 0]-1 +((i+1)*0.2),[1 1.2],'color',[.7 .7 .7]);
 
-text(-1+(0.2*(i)) +.3,1.16,'Simple Clust v0.3  jvoigts@mit.edu');
+text(-1+(0.2*(i)) +.3,1.16,'Simple Clust v0.4  jvoigts@mit.edu');
 text(-1+(0.2*(i)) +.3,1.06,features.muafile_justfile,'Interpreter','none');
 

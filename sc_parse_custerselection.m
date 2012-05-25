@@ -9,24 +9,7 @@ if (x>-1) && (y> 1)
     
     for i=1:features.Nclusters
         
-        %{
-    text(-1+(0.2*(i-1)) +.04 ,1.16,['[',num2str(i),']'])
-    plot(-1+(0.2*(i-1)) +.02 ,1.16,features.clusterfstrs{i},'MarkerSize',10);
-    
-    
-    plot([0 0]-1 +((i-1)*0.2),[1 1.2],'color',[.7 .7 .7]);
-    plot([0 0]-1 +((i-0)*0.2),[1 1.2],'color',[.7 .7 .7]);
-    
-    
-    
-    plot( [(i-1)*0.2,(i)*0.2]-1  ,[1.1, 1.1],'color',[.7 .7 .7]);
-    
-
-    text(-1+(0.2*(i-1)) +.06 ,1.08,'+');
-    text(-1+(0.2*(i-1)) +.12 ,1.05,'*');
-    
-    plot([1 1].*-1+(0.2*(i-1)) +.1,[1 1.1],'color',[.7 .7 .7]);
-        %}
+ 
         
         if (x>-1 +((i-1)*0.2)) && (x<-1 +((i-0)*0.2))
             %   disp(['hit ',num2str(i)])
@@ -81,9 +64,7 @@ if (x>-1) && (y> 1)
                 
             end;
             
-           % features=updateclusterimages(features,mua);
-            
-            
+
         end;
         
     end;
@@ -92,17 +73,20 @@ if (x>-1) && (y> 1)
         disp('ADD');
         features.Nclusters=features.Nclusters+1;
         
+        plot([0 0.15]-1+(0.2*(i)) +.02,[1 1].*1.1,'k','LineWidth',15,'color',.70.*[1 1 1]);
+        plot([0.075 0.075]-1+(0.2*(i)) +.02,[0 0.15]+1.02,'k','LineWidth',15,'color',.70.*[1 1 1]);
         
-        text(-1+(0.2*(i)) +.04,1.10,'+new+','color',[1 0 0])
+        
+        text(-1+(0.2*(i)) +.1,1.04,'+new','color',[1 0 0])
         drawnow;
         
         features=sc_add_to_cluster(features,features.Nclusters);
         
-       % features=updateclusterimages(features,mua);
+        % features=updateclusterimages(features,mua);
     end;
     
     
-     features=sc_updateclusterimages(features,mua);
+    features=sc_updateclusterimages(features,mua);
 end;
 
 

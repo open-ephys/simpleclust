@@ -8,6 +8,11 @@ function features = mua2features(mua)
 
 D=mua.waveforms;
 
+if size(D,2)>size(D,1)
+    error('fewer spikes than samples in waveform, sorting this doesnt make much sense');
+    % simply padding D will probbaly fix this if you really want to sort something like this
+end;
+
 %% get Wavelet coeffs
 
 
@@ -40,10 +45,17 @@ daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
 drawnow;
 
 
+
 [coeffs,score]= princomp(mua.waveforms','econ');
 
-D=coeffs(:,1:8)';
-
+if size(mua.waveforms,1)>8
+    
+    D=coeffs(:,1:8)';
+    
+else
+    
+    D=zeros(size(mua.waveforms,1),8);
+end;
 %plot(coeffs(:,1),coeffs(:,2),'.','MarkerSize',.5)
 
 
@@ -51,15 +63,43 @@ disp('  making features ..')
 
 features=[];
 
-%% write data
+%% precalculate energy too, is faster this way
+
 
 trodeboundaries = max(1,round(linspace(0,size(mua.waveforms,2),mua.ncontacts+1)));
+
+clf; hold on
+fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+x=linspace(0,2*pi,80);
+plot(sin(x).*.4,cos(x).*.4,'k','LineWidth',22,'color',[1 1 1])
+
+text(0,0,['precalculating nonlinear energy']);
+xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
+drawnow;
+
+
+nle=zeros(mua.ncontacts,mua.Nspikes);
+for d=1:mua.ncontacts %size(spike,1)
+    x=mua.waveforms(:,trodeboundaries(d):trodeboundaries(d+1));
+    nle(d,:) = mean( (x(:,2:end-1).^2 - ( x(:,1:end-2) .* x(:,3:end) ))' )*10;
+    
+    
+end;
+
+
+
+%% write data
+
 
 features.data=zeros(6,length(mua.ts));
 
 
 lastpercent=0;
 
+features.ts=mua.ts;
+features.id=[1:length(mua.ts)];
+    
 for n = 1:length(mua.ts)
     
     
@@ -85,8 +125,6 @@ for n = 1:length(mua.ts)
     
     spike = squeeze(mua.waveforms(n,:))./20;
     
-    features.ts(n)=mua.ts(n);
-    features.id(n)=n;
     
     
     % spike time
@@ -97,7 +135,7 @@ for n = 1:length(mua.ts)
     
     %peak height
     for d=1:mua.ncontacts %size(spike,1)
-        x=spike(trodeboundaries(d):trodeboundaries(d+1));
+        x=spike(trodeboundaries(d):trodeboundaries(d+1)-1);
         neo(d) =max(x);
         
         c=c+1;
@@ -109,15 +147,14 @@ for n = 1:length(mua.ts)
     
     
     %calculate Nonlinear energy (Teager energy operator)
-    for d=1:mua.ncontacts %size(spike,1)
-        x=spike(trodeboundaries(d):trodeboundaries(d+1));
-        neo(d) = mean(x(2:end-1).^2 - ( x(1:end-2) .* x(3:end) ))*10;
-        
-        c=c+1;
-        features.data(c,n)= neo(d);
-        
-        if n==1; features.name{c}=['energy ',num2str(d)]; end;
-        
+    if 1
+        for d=1:mua.ncontacts %size(spike,1)
+            c=c+1;
+            features.data(c,n)= nle(d,n);
+            
+            if n==1; features.name{c}=['energy ',num2str(d)]; end;
+            
+        end;
     end;
     
     % put in PCA features
@@ -137,8 +174,11 @@ for n = 1:length(mua.ts)
     
     % max. derivative
     c=c+1;
-    features.data(c,n)=max(abs(diff(spike)));
-    
+    if numel(spike)>1
+        features.data(c,n)=max(abs(diff(spike)));
+    else
+        features.data(c,n)=0;
+    end;
     if n==1; features.name{c}=['maxD']; end;
     
     

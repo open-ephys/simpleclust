@@ -11,7 +11,7 @@ l=linspace(0,features.isioptions(1).tmax,features.isioptions(1).nbins);
 
 thisclust=find(features.clusters==i);
 
-dt= diff(features.ts(thisclust)).*1;
+dt= diff(features.ts(thisclust).*1000);
 dt(dt==0)=[];
 
 h=histc(dt,l);

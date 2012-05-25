@@ -1,15 +1,9 @@
-function [features,mua]=sc_loadmuadata(muafile, dofeatures)
+function [features,mua]=sc_loadmuadata(muafile)
 
 
 
 %load('/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-19_23-52-54_10min_laser_100msisi_1-4sec delay/spikes_from_csc/mua_ch3.mat')
-
-
-if dofeatures
-    skipsetup=1;
-else
-    skipsetup=0;
-end;
+skipsetup=0;
 
 switch muafile(end-2:end)
     case 'mat'
@@ -42,9 +36,9 @@ switch muafile(end-2:end)
                 mua.ts = times_all;
                 
                 mua.ts_spike=[1:size( mua.waveforms,2)];
-                if dofeatures
-                    features=sc_mua2features(mua);
-                end;
+                
+                features=sc_mua2features(mua);
+                
                 
                 
             end;
@@ -63,16 +57,13 @@ switch muafile(end-2:end)
                 % for now we only deal with simple electrodes
                 
                 mua.ncontacts = 1;
-                
-                if dofeatures
-                    features=sc_mua2features(mua);
-                end;
+                features=sc_mua2features(mua);
             end;
             
             
         end;
         
-    case 'nse'
+            case 'nse'
         
         
         prompt = {['source channel nr for file ',muafile]};
@@ -109,9 +100,7 @@ switch muafile(end-2:end)
         mua.waveforms=[D(1:end,:)]';
         mua.ts_spike=linspace(-.5,1.5,32);
         
-        if dofeatures
-            features=sc_mua2features(mua);
-        end;
+        features=sc_mua2features(mua);
         
     case 'nst'
         
@@ -150,10 +139,7 @@ switch muafile(end-2:end)
         mua.waveforms=[D(1:2:end,:);D(2:2:end,:)]';
         mua.ts_spike=linspace(-.5,1.5,64);
         
-        if dofeatures
-            features=sc_mua2features(mua);
-        end;
-        
+        features=sc_mua2features(mua);
     case 'ntt'
         
         cdata = read_cheetah_data(muafile);
@@ -182,10 +168,7 @@ switch muafile(end-2:end)
         mua.waveforms=[D(1:4:end,:);D(2:4:end,:);D(3:4:end,:);D(4:4:end,:)]';
         mua.ts_spike=linspace(-.5,1.5,64);
         
-        if dofeatures
-            features=sc_mua2features(mua);
-        end;
-        
+        features=sc_mua2features(mua);
     otherwise
         error('unrecognized file format');
 end;

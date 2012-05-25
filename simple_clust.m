@@ -1,21 +1,22 @@
 %
-%   Simple Clust v0.3
+%   Simple Clust v0.4
 %
 %   alpha version, not for redistribution
 %   email me if there's any issues or features you'd like to see added
 %
 %
-%   Feb 2012, Jakob Voigts (jvoigts@mit.edu)
+%   apr 2012, Jakob Voigts (jvoigts@mit.edu)
 
 
 %{
 features 2do:
 
+X - fix ISI display
 X- loading of simpleclust state with clusters etc intact
 X- 'remove features' button (small x) on left
 X - add ++ button that puts spikes into cluster from any other cluster even if prev. asigned
 X- ISI display
-- xcorr feature?
+X- xcorr feature
 X- display multiple waveforms around where user clicke, like 10ish
 X- allow rescaling of all visible clusters, pretty much works as zoom
 X- time selection at bottom? or just add time feature?
@@ -23,16 +24,48 @@ X- time selection at bottom? or just add time feature?
 X- add better features for loading stereotrode and tetrode data
 X- undo function for the cluster operations
 X- make peaks/energy etc work with TTL/ST files
-
-
-
+X- make selection polygon same color as the cluster
+X - automatically scale waveforms when loading (scaling by 95 quantile of all waveforms)
+X - proper zoom function
+X - detection of spike overlaps over many channels
+X - ma keeoverlap faster by doing histogram method by default
+X - do overlap as percent of channels
+X - improve label selection
+X - fix spike.waveform_ts lenght in tetrodes (is sized for st)
+X - dsplay ch in overlap selection
+X - add progress bar for initial waveform supersampling,
+X - try to improve waveform supersampling speed (do linear?)
+X - do . display by default, not x, increase default displynum to 30000
+- add batch process functions
+ - allow to change color
+ - save selected color for plotting in later analysis?
+ - add template matching to selected cluster?
 %}
 
 run=1;
 dataloaded=0;
 
-addpath(pwd);
-addpath(fullfile(pwd,'read_cheetah'));
+global debugstate;
+debugstate = 0; % 0: do nothing, 1: go trough following states
+debuginput = [0 0 0];
+
+%addpath(pwd);
+%addpath(fullfile(pwd,'read_cheetah'));
+
+s_opt=[];
+
+s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap
+s_opt.auto_overlap_max = 6; %if >0, limits how many other channels are loaded
+
+s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
+s_opt.auto_noise_trs = .5; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
+
+s_opt.auto_number =1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data
+
+
+if numel(strfind(path,'read_cheetah')) ==0
+    error('make sure the read_cheetah dir is in your matlab path');
+end;
 
 %% main loop
 
@@ -42,26 +75,53 @@ while run
     
     
     
-    fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+    fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.92 .92 .92]);
     
     set(gca, 'position', [0 0 1 1]);
     
-    title('simple clust v0.3');
-    %  disp(features.name');
+    title('simple clust v0.4');
+    
     if ~dataloaded
         
         x=linspace(0,2*pi,80);
-        plot(sin(x).*.3,cos(x).*.3,'k','LineWidth',28,'color',[1 1 1])
-        text(0,0,'Simple Clust v0.3')
-            xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
-    daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
-    
+        
+        for i=2:12
+            plot(sin(x).*i.*.3,cos(x).*i.*.3,'k','LineWidth',28,'color',[.9 .9 .9])
+        end;
+        plot(sin(x).*1.*.3,cos(x).*1.*.3,'k','LineWidth',28,'color',[1 1 1])
+        
+        text(0,0,'Simple Clust v0.4')
+        xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+        daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
+        
+        
+        fill([-1.2 -1 -1 -1.2],[1 1 1.2 1.2]-0.2,'b','FaceColor',[.9 .9 .9]);
+        
+        text(-1.18,1.05-0.2,'batch prep');
+        plot([-1.2 -1],[1.1 1.1]-0.2,'color',[0 0 0]);
+        text(-1.18,1.15-0.2,'batch run');
+        
+        plot([-1.2 -1],[1 1],'color',[.0 .0 .0]);
+        
+        
         
     end;
     
+    fill([-1.2 -1 -1 -1.2],[1 1 1.2 1.2],'b','FaceColor',[.9 .9 .9]);
+    
+    text(-1.18,1.05,'save/exit');
+    plot([-1.2 -1],[1.1 1.1],'color',[0 0 0]);
+    text(-1.18,1.15,'open');
+    
+    plot([-1.2 -1],[1 1],'color',[.7 .7 .7]);
+    
+    xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+    daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
+    
+    
     if dataloaded
         
-        sc_plotclusters(features);
+        features=sc_plotclusters(features);
         
         sc_plotfeatureselection(features);
         
@@ -79,21 +139,35 @@ while run
         
         features.highlight = 0; % remove highlight on each click
     end;
-    fill([-1.2 -1 -1 -1.2],[1 1 1.2 1.2],'b','FaceColor',[.9 .9 .9]);
-    
-    text(-1.18,1.05,'save/exit');
-    plot([-1.2 -1],[1.1 1.1],'color',[0 0 0]);
-    text(-1.18,1.15,'open');
-    
-    plot([-1.2 -1],[1 1],'color',[.7 .7 .7]);
-    
-    xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
-    daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
     
     
     
-    [x,y,b] = ginput(1);
-    %disp(b);
+    
+    [x,y,b] = sc_ginput(1)
+    
+    
+    if (x<-1)&& (y>0.9) && (y<1) % batch (pre)process
+        
+        [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files to preprocess'],'MultiSelect','on');
+        
+        
+        for b=1:numel(FileName)
+            
+            features.muafile =[PathName,FileName{b}];
+            
+            fprintf('processing file %d of %d \n',b,numel(FileName));
+            
+            sc_load_mua_dialog;
+            sc_save_dialog;
+            
+        end;
+        
+    end;
+    
+    if (x<-1)&& (y>0.9) && (y<1) % batch run - open folder of simpleclust files and loop trough sorting them one at a time
+        disp('not implemented yet');
+    end;
+    
     
     if dataloaded
         features=sc_parse_feature_selection(x,y,features);
@@ -102,6 +176,7 @@ while run
         
         features=sc_parse_clickonwaveforms(x,y,features,mua);
         
+        features=sc_parse_zoom(b,x,y,features);
         
         features=sc_timeline(features,mua,x,y,b);
         
@@ -126,10 +201,17 @@ while run
             if strcmp(button,'Yes')
                 
                 % load MUa data
+                global debugstate
+                if debugstate > 0
+                    
+                    PathName = '/home/jvoigts/Dropbox/em003/good/';
+                    FileName =  'ST11.nse';
+                else
+                    [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
+                    
+                end;
                 
-                [FileName,PathName,FilterIndex] = uigetfile({'*.mat', 'matlab file';'*.nse',  'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
                 features.muafile =[PathName,FileName];
-                
                 % ask user for channel number this file comes from
                 % could parse filename here but the small time saving is
                 % not worth the loss of flexibility
@@ -138,15 +220,7 @@ while run
                 
                 
                 %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
-                [features,mua]=sc_loadmuadata(features.muafile);
-                
-                features.muafilepath =[PathName];
-                features.muafile =[PathName,FileName];
-                % cd(PathName); % for faster selection of later input files
-                features.muafile_justfile =FileName;
-                
-                
-                dataloaded=1;
+                sc_load_mua_dialog;
                 
             else
                 run=0;
@@ -162,34 +236,7 @@ while run
                 if strcmp(button,'Save')
                     
                     
-                    % save result to simplified spikes objects
-                    spikes=[];
-                    %  if numel(mua.opt.projectpath)>0
-                    %  spikes.projectpath=mua.opt.projectpath;
-                    %  end;
-                    spikes.sourcefile = features.muafile;
-                    spikes.ts=features.ts;
-                    spikes.cluster_is=features.clusters;
-                    spikes.labelcategories=features.labelcategories;
-                    spikes.clusterlabels=features.clusterlabels;
-                    spikes.sourcechannel=features.sourcechannel;
-                    
-                    spikes.Nspikes=mua.Nspikes;
-                    
-                    spikes.waveforms=mua.waveforms;
-                    spikes.waveforms_ts=mua.ts_spike;
-                    
-                    %outfilename=[spikes.sourcefile(1:end-4),'_clustered.mat'];
-                    outfilename=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_clustered.mat'];
-                    save(outfilename,'spikes');
-                    
-                    % save simpleclust state so we can just load it again
-                    % if needed
-                     outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
-                    save(outfilename_sc,'features','mua');
-                    
-                    disp(['saved to ',outfilename,' output for using in science']);
-                    disp(['saved to ',outfilename_sc,' can be loaded with simpleclust']);
+                    sc_save_dialog;
                     
                     run=0;
                 end;
