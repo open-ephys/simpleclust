@@ -1,9 +1,6 @@
 function [features,mua]=sc_loadmuadata(muafile, dofeatures,s_opt)
 
 
-
-%load('/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-19_23-52-54_10min_laser_100msisi_1-4sec delay/spikes_from_csc/mua_ch3.mat')
-
 skipsetup=0;
 
 
