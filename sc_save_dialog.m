@@ -25,21 +25,20 @@ else
     button='Yes';
 end;
 
-    if strcmp(button,'Yes')
-        
-        
-        save(outfilename,'spikes');
-        
-        % save simpleclust state so we can just load it again
-        % if needed
-        outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
-        save(outfilename_sc,'features','mua');
-        
-        disp(['saved to ',outfilename,' output for using in science']);
-        disp(['saved to ',outfilename_sc,' can be loaded with simpleclust']);
-        
-    else
-        disp('aborted saving open files');
-        
-    end;
+if strcmp(button,'Yes')
     
+    
+    save(outfilename,'spikes');
+    
+    % save simpleclust state so we can just load it again
+    % if needed
+    outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
+    save(outfilename_sc,'features','mua');
+    
+    disp(['saved to ',outfilename,' output for using in science']);
+    disp(['saved to ',outfilename_sc,' can be loaded with simpleclust']);
+    
+else
+    disp('aborted saving open files');
+    
+end;
