@@ -4,9 +4,18 @@ function features=add_to_cluster_from_any(features,i,featureselects)
 [px,py] =sc_getpolygon(features,features.colors(i,:));
 
 
+% only visible ones
+use=zeros(1,numel(features.ts));
+
+for i=1:features.Nclusters
+    if features.clustervisible(i)
+        incluster=find(features.clusters==i );
+        use(incluster)=1;
+    end;
+end;
 
 
-notassigned=find(features.clusters>0); % just select from all
+notassigned=find(use); % just select from all
    
 
 dX=features.data(features.featureselects(1),notassigned);

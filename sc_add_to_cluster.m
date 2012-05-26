@@ -3,9 +3,19 @@ function features=add_to_cluster(features,i,featureselects)
 
 [px,py] =sc_getpolygon(features,features.colors(i,:));
 
+use=zeros(1,numel(features.ts));
+
+for i=1:features.Nclusters
+    if features.clustervisible(i)
+        incluster=find(features.clusters==i );
+        use(incluster)=1;
+    end;
+end;
+
+
 
 if i>1
-    notassigned=find(features.clusters==1);
+    notassigned=find(use.*(features.clusters==1));
 else    % if we're 'adding' to the null closuer, take from all other clusters.
     %this is equivalent to removing points from clusters
     
