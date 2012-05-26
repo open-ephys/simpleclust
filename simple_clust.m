@@ -36,10 +36,15 @@ X - dsplay ch in overlap selection
 X - add progress bar for initial waveform supersampling,
 X - try to improve waveform supersampling speed (do linear?)
 X - do . display by default, not x, increase default displynum to 30000
-- add batch process functions
+- add batch process functions, sorte work in progress
+- figure out saving as ch_simpleclust with no channel nnr bug
+- add warning if ch is not just a number
+X- add isi feature
+X - make add function take spikes only from visible clusters
  - allow to change color
  - save selected color for plotting in later analysis?
  - add template matching to selected cluster?
+
 %}
 
 run=1;
@@ -57,7 +62,7 @@ s_opt=[];
 s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap
 s_opt.auto_overlap_max = 6; %if >0, limits how many other channels are loaded
 
-s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
+s_opt.auto_noise = 0; % automatically assign channels with high overlap into noise cluster
 s_opt.auto_noise_trs = .5; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
 
 s_opt.auto_number =1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data

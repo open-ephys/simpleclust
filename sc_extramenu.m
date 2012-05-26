@@ -109,17 +109,27 @@ if nargout==0 % plot
     
     text(pos(i)+0.02,-1.05,['compare']);
     
+        i=15; % isi feature
+    plot([1 1].*pos(i) ,[-1.1 -1],'color',[.7 .7 .7]);
+    plot([1 1].*pos(i+1) ,[-1.1 -1],'color',[.7 .7 .7]);
+    
+    text(pos(i)+0.02,-1.05,['+ISI feature']);
     
 else % evaluate x,y
     
     i=1;
     if (x>pos(i)) && (x<pos(i+1))
         
-        text(-.5,0,'computing additional wavelet features for visible spikes... ', 'BackgroundColor',[.7 .9 .7]);
-        drawnow;
+        button = questdlg('compute wavelet feature? this will take a while.','compute wavelets?','Yes','No','Yes');
         
-        features=sc_compute_extra_wavelet_coeffs(features,mua);
         
+        if strcmp(button,'Yes')
+            
+            text(-.5,0,'computing additional wavelet features for visible spikes... ', 'BackgroundColor',[.7 .9 .7]);
+            drawnow;
+            
+            features=sc_compute_extra_wavelet_coeffs(features,mua);
+        end;
     end;
     
     
@@ -241,7 +251,20 @@ else % evaluate x,y
       sc_compare_features(features,mua);
     end;
     
+    
+        i=15; % compute isi feature
+    if (x>pos(i)) && (x<pos(i+1))
+        
+        text(-.5,0,'computing additional ISI features, using only visible spikes... ', 'BackgroundColor',[.7 .9 .7]);
+        drawnow;
+
+            features=sc_add_isi_feature(features,mua);
+    end;
+    
+    
     varargout={features};
+    
+    
     
     
 end;
