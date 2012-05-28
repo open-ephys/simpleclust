@@ -7,9 +7,9 @@ function features=add_to_cluster_from_any(features,i,featureselects)
 % only visible ones
 use=zeros(1,numel(features.ts));
 
-for i=1:features.Nclusters
-    if features.clustervisible(i)
-        incluster=find(features.clusters==i );
+for j=1:features.Nclusters
+    if features.clustervisible(j)
+        incluster=find(features.clusters==j );
         use(incluster)=1;
     end;
 end;
