@@ -28,6 +28,10 @@ end;
 if strcmp(button,'Yes')
     
     
+        text(-.5,0,'saving... ', 'BackgroundColor',[.7 .9 .7]);
+        drawnow;
+        
+    
     save(outfilename,'spikes');
     
     % save simpleclust state so we can just load it again

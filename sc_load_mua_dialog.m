@@ -3,9 +3,18 @@
 
 
 features.muafilepath =[PathName];
-features.muafile =[PathName,FileName];
+
+if s_opt.batch
+    
+    features.muafile =[PathName,multifiles{multi_N}];
+    features.muafile_justfile =multifiles{multi_N};
+else
+    features.muafile =[PathName,FileName];
+    features.muafile_justfile =FileName;
+end;
+
 % cd(PathName); % for faster selection of later input files
-features.muafile_justfile =FileName;
+
 
 % ask to load other files
 % this can be used to make a feature that counts how many
@@ -61,7 +70,7 @@ if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
     
     
 else % select manually
-    if debugstate >0
+    if (debugstate >0) || (s_opt.batch)
         button='no';
     else
         

@@ -59,10 +59,12 @@ debuginput = [0 0 0];
 
 s_opt=[];
 
+s_opt.batch=0;
+
 s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap
 s_opt.auto_overlap_max = 6; %if >0, limits how many other channels are loaded
 
-s_opt.auto_noise = 0; % automatically assign channels with high overlap into noise cluster
+s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
 s_opt.auto_noise_trs = .5; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
 
 s_opt.auto_number =1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data
@@ -102,9 +104,9 @@ while run
         
         fill([-1.2 -1 -1 -1.2],[1 1 1.2 1.2]-0.2,'b','FaceColor',[.9 .9 .9]);
         
-        text(-1.18,1.05-0.2,'batch prep');
+        text(-1.18,1.05-0.2,'batch run');
         plot([-1.2 -1],[1.1 1.1]-0.2,'color',[0 0 0]);
-        text(-1.18,1.15-0.2,'batch run');
+        text(-1.18,1.15-0.2,'batch prep');
         
         plot([-1.2 -1],[1 1],'color',[.0 .0 .0]);
         
@@ -116,7 +118,14 @@ while run
     
     text(-1.18,1.05,'save/exit');
     plot([-1.2 -1],[1.1 1.1],'color',[0 0 0]);
-    text(-1.18,1.15,'open');
+    if s_opt.batch
+        text(-1.18,1.17,'next file');
+        text(-1.18,1.13,[num2str(multi_N),'/',num2str(numel(multifiles))]);
+        
+        
+    else
+        text(-1.18,1.15,'open');
+    end;
     
     plot([-1.2 -1],[1 1],'color',[.7 .7 .7]);
     
@@ -167,10 +176,23 @@ while run
             
         end;
         
+        dataloaded=0;
+        
     end;
     
-    if (x<-1)&& (y>0.9) && (y<1) % batch run - open folder of simpleclust files and loop trough sorting them one at a time
-        disp('not implemented yet');
+    if (x<-1)&& (y>0.8) && (y<0.9) % batch run - open folder of simpleclust files and loop trough sorting them one at a time
+        
+        
+        [multifiles,PathName,FilterIndex] = uigetfile({'*_simpleclust.mat', 'simpleclust file';'*.nse;*.nst;*.ntt;','all base electrode file types';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files to cluster'],'MultiSelect','on');
+        
+        s_opt.batch=1; % indicate we're doing a batch
+        multi_N=1; % cycle trough many files
+        
+        
+        features.muafile =[PathName,multifiles{multi_N}];
+        sc_load_mua_dialog;
+        
+        
     end;
     
     
@@ -197,41 +219,66 @@ while run
     if (x<-1)&& (y>1)
         
         if y > 1.1
+            
+            
             disp('open');
-            if dataloaded
-                button = questdlg('Open new MUA dataset?','open?','Yes','No','Yes');
-            else
-                button='Yes';
-            end;
-            if strcmp(button,'Yes')
-                
-                % load MUa data
-                global debugstate
-                if debugstate > 0
-                    
-                    PathName = '/home/jvoigts/Dropbox/em003/good/';
-                    FileName =  'ST11.nse';
+            
+            if s_opt.batch % open next file in batch
+                if dataloaded
+                    button = questdlg('Save and open next file?','open?','Yes','No','Yes');
                 else
-                    [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
-                    
+                    button='Yes';
                 end;
                 
-                features.muafile =[PathName,FileName];
-                % ask user for channel number this file comes from
-                % could parse filename here but the small time saving is
-                % not worth the loss of flexibility
-                %
+                sc_save_dialog;
+                
+                multi_N=multi_N+1;
                 
                 
-                
-                %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
+                features.muafile =[PathName,multifiles{multi_N}];
                 sc_load_mua_dialog;
                 
-            else
-                run=0;
-                return;
+                
+                
+                
+            else % open one file
+                
+                if dataloaded
+                    button = questdlg('Open new MUA dataset?','open?','Yes','No','Yes');
+                else
+                    button='Yes';
+                end;
+                if strcmp(button,'Yes')
+                    
+                    % load MUa data
+                    global debugstate
+                    if debugstate > 0
+                        
+                        PathName = '/home/jvoigts/Dropbox/em003/good/';
+                        FileName =  'ST11.nse';
+                    else
+                        [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
+                        
+                    end;
+                    
+                    features.muafile =[PathName,FileName];
+                    % ask user for channel number this file comes from
+                    % could parse filename here but the small time saving is
+                    % not worth the loss of flexibility
+                    %
+                    
+                    
+                    
+                    %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
+                    sc_load_mua_dialog;
+                    
+                else
+                    run=0;
+                    return;
+                end;
             end;
             
+            % exit/save
         else
             disp('save/exit');
             % ask for saving here
@@ -250,6 +297,7 @@ while run
                 run=0;
             end;
         end;
+        
         
     end;
     
