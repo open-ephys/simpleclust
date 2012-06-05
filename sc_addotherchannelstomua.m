@@ -96,7 +96,7 @@ if use_loop
     end;
     
     
-else % just use histograms
+else % just use histograms, way faster
     
     tbins=[min(mua.ts):0.1/1000:max(mua.ts)]; % make .1ms +-1 ms bins (this will blow up for big files on small machines)
     
@@ -107,11 +107,13 @@ else % just use histograms
     [h_this,this_bins]=histc(mua.ts ,tbins);
     h_this=conv(h_this,[.5  1 .5],'same'); % avoid edge effects
     
-   % h_others=sparse(zeros(numel(tbins), numel(mua.otherchannels) ));
+    % h_others=sparse(zeros(numel(tbins), numel(mua.otherchannels) ));
     for j=1:numel(mua.otherchannels)
-        
-        ovr=(h_this .* histc(mua.otherchannels{j}.ts ,tbins));
-        Noverlap(1:end-1)=Noverlap(1:end-1)+  ovr(this_bins(1:end-1));
+        h_other=histc(mua.otherchannels{j}.ts;
+        if numel(h_other)>0
+            ovr=(h_this .* h_other ,tbins));
+            Noverlap(1:end-1)=Noverlap(1:end-1)+  ovr(this_bins(1:end-1));
+        end;
     end;
     
     
