@@ -76,6 +76,17 @@ if min(( features.data(features.featureselects(2),:) >= features.zoomrange(featu
     end;
 end;
 %% plot
+
+%ugly bug fix - figure out where this error comes from!
+if size(features.timevisible,1)>size(features.timevisible,2)
+features.timevisible=features.timevisible';
+end;
+if size(features.ts,1)>size(features.ts,2)
+features.ts=features.ts';
+end;
+
+
+
 for i=1:features.Nclusters
     if features.clustervisible(i)
         

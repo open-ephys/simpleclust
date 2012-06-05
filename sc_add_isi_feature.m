@@ -7,7 +7,7 @@ D=zeros(1,size(features.data,2));
 
 visible = find(ismember(features.clusters, find(features.clustervisible)));
 
-isis=[0;diff(features.ts(visible))];
+isis=[0,diff(features.ts(visible))];
 
 D(visible)=isis';
 
