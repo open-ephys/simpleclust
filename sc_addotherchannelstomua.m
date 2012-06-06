@@ -109,9 +109,9 @@ else % just use histograms, way faster
     
     % h_others=sparse(zeros(numel(tbins), numel(mua.otherchannels) ));
     for j=1:numel(mua.otherchannels)
-        h_other=histc(mua.otherchannels{j}.ts;
+        h_other=histc(mua.otherchannels{j}.ts ,tbins);
         if numel(h_other)>0
-            ovr=(h_this .* h_other ,tbins));
+            ovr=(h_this .* h_other);
             Noverlap(1:end-1)=Noverlap(1:end-1)+  ovr(this_bins(1:end-1));
         end;
     end;
