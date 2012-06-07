@@ -1,6 +1,6 @@
 function varargout=extramenu(features,mua,x,y)
 
-pos=[-1  -.8 -.6 -.5 -.4 -.3 -.2 0.0 0.1 0.4 0.5 0.8 1 1.2 1.4 1.7];
+pos=[-1  -.8 -.6 -.5 -.4 -.3 -.2 0.0 0.1 0.4 0.5 0.8 1 1.2 1.4 1.7 1.9];
 
 
 plot([-1.3 3.3] ,[-1 -1],'color',[.7 .7 .7]);
@@ -114,6 +114,12 @@ if nargout==0 % plot
     plot([1 1].*pos(i+1) ,[-1.1 -1],'color',[.7 .7 .7]);
     
     text(pos(i)+0.02,-1.05,['+ISI feature']);
+
+            i=16; % sample specific pca feature
+    plot([1 1].*pos(i) ,[-1.1 -1],'color',[.7 .7 .7]);
+    plot([1 1].*pos(i+1) ,[-1.1 -1],'color',[.7 .7 .7]);
+    
+    text(pos(i)+0.02,-1.05,['+PCA for subsets']);
     
 else % evaluate x,y
     
@@ -261,6 +267,44 @@ else % evaluate x,y
             features=sc_add_isi_feature(features,mua);
     end;
     
+    
+        i=16; % compute partial pca feature
+    if (x>pos(i)) && (x<pos(i+1))
+        text(-.5,0,'click on first sample in waveform', 'BackgroundColor',[.7 .9 .7]);
+        drawnow
+        [x,y,b] = sc_ginput(1);
+        
+        xpos=[0 0 0 1 1 1 2 2 2];
+ypos=[1 2 3 1 2 3 1 2 3];
+
+% here
+        xo=(xpos(i)*(psize+.01))+.05;
+        
+                    npoints=numel(mua.ts_spike);
+            %xa=  (linspace(0,psize,npoints));
+            samples=[-2:2]+((x-(1+xo))/psize)*npoints;
+            samples_from=max(min(round(samples),npoints),1);
+        
+            text(-.5,0,'click on seconf sample in waveform', 'BackgroundColor',[.7 .9 .7]);
+        drawnow;
+        
+        [x,y,b] = sc_ginput(1);
+        
+        
+                    npoints=numel(mua.ts_spike);
+            %xa=  (linspace(0,psize,npoints));
+            samples=[-2:2]+((x-(1+xo))/psize)*npoints;
+            samples_to=max(min(round(samples),npoints),1);
+            
+            
+            
+        text(-.5,0,'computing PCA for visible clusters in selected waveform sample range... ', 'BackgroundColor',[.7 .9 .7]);
+        drawnow;
+
+            
+        features=sc_compute_extra_PCA_coeffs_partial(features,mua,samples_from,samples_to);
+        
+    end;
     
     varargout={features};
     

@@ -157,7 +157,7 @@ while run
     
     
     
-    [x,y,b] = sc_ginput(1)
+    [x,y,b] = sc_ginput(1);
     
     
     if (x<-1)&& (y>0.9) && (y<1) % batch (pre)process

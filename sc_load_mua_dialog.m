@@ -57,12 +57,12 @@ if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
         
         fn=find(strcmp(features.name,'Ch.overlap')); % find feature
         if numel(fn)==0
-            error('selected automatic noise rejection but not Ch.overlap feature found!');
+            warning('selected automatic noise rejection but not Ch.overlap feature found!');
+        else
+            
+            ii= features.data(fn(1),:)>s_opt.auto_noise_trs;
+            features.clusters(ii)=2; % assign
         end;
-        
-        ii= features.data(fn(1),:)>s_opt.auto_noise_trs;
-        features.clusters(ii)=2; % assign
-        
         features=sc_updateclusterimages(features,mua);
         
     end;

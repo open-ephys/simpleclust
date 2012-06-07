@@ -100,8 +100,8 @@ else % just use histograms, way faster
     
     tbins=[min(mua.ts):0.1/1000:max(mua.ts)]; % make .1ms +-1 ms bins (this will blow up for big files on small machines)
     
-    
     Noverlap=zeros(size(mua.ts));
+    N_used=0; % count how many were actually used
     
     h_this=sparse(zeros(numel(tbins), 1));
     [h_this,this_bins]=histc(mua.ts ,tbins);
@@ -109,15 +109,34 @@ else % just use histograms, way faster
     
     % h_others=sparse(zeros(numel(tbins), numel(mua.otherchannels) ));
     for j=1:numel(mua.otherchannels)
+        
+        
+        clf; hold on
+        fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
+        x=linspace(0,2*pi,80);
+        plot(sin(x).*.4,cos(x).*.4,'k','LineWidth',22,'color',[1 1 1])
+        
+        text(0,0,['processing extra channel ',num2str(j),'/',num2str(numel(features.otherchannelfiles))]);
+        xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
+        daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
+        drawnow;
+        
+        
         h_other=histc(mua.otherchannels{j}.ts ,tbins);
         if numel(h_other)>0
             ovr=(h_this .* h_other);
             Noverlap(1:end-1)=Noverlap(1:end-1)+  ovr(this_bins(1:end-1));
+            N_used=N_used+1;
         end;
     end;
     
     
 end;
-features.data(end+1,:)=Noverlap/N_compare;
 
+if N_used > 0
+    features.data(end+1,:)=((Noverlap+ randn(size(Noverlap)).*.6 )/N_used);
+else
+    features.data(end+1,:)= zeros(size(mua.ts));
+    disp('no other channels with spikes were found, channel overlap feature is empty');
+end;
 features=sc_scale_features(features);
