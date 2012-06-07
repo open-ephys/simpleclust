@@ -263,46 +263,60 @@ else % evaluate x,y
         
         text(-.5,0,'computing additional ISI features, using only visible spikes... ', 'BackgroundColor',[.7 .9 .7]);
         drawnow;
-
-            features=sc_add_isi_feature(features,mua);
+        
+        features=sc_add_isi_feature(features,mua);
     end;
     
     
-        i=16; % compute partial pca feature
+    i=16; % compute partial pca feature
     if (x>pos(i)) && (x<pos(i+1))
         text(-.5,0,'click on first sample in waveform', 'BackgroundColor',[.7 .9 .7]);
         drawnow
         [x,y,b] = sc_ginput(1);
         
+        
+        psize=0.65; % find whish one was clicked on
         xpos=[0 0 0 1 1 1 2 2 2];
-ypos=[1 2 3 1 2 3 1 2 3];
-
-% here
-        xo=(xpos(i)*(psize+.01))+.05;
-        
-                    npoints=numel(mua.ts_spike);
-            %xa=  (linspace(0,psize,npoints));
-            samples=[-2:2]+((x-(1+xo))/psize)*npoints;
-            samples_from=max(min(round(samples),npoints),1);
-        
-            text(-.5,0,'click on seconf sample in waveform', 'BackgroundColor',[.7 .9 .7]);
-        drawnow;
-        
-        [x,y,b] = sc_ginput(1);
+        ypos=[1 2 3 1 2 3 1 2 3];
         
         
-                    npoints=numel(mua.ts_spike);
-            %xa=  (linspace(0,psize,npoints));
-            samples=[-2:2]+((x-(1+xo))/psize)*npoints;
-            samples_to=max(min(round(samples),npoints),1);
-            
-            
-            
-        text(-.5,0,'computing PCA for visible clusters in selected waveform sample range... ', 'BackgroundColor',[.7 .9 .7]);
-        drawnow;
-
-            
-        features=sc_compute_extra_PCA_coeffs_partial(features,mua,samples_from,samples_to);
+        for i=1:features.Nclusters
+            xo=(xpos(i)*(psize+.01))+.05;
+            yo=-(ypos(i)*(psize+.01))+1;
+            if (x> 1+xo) && (x<1+xo+psize) && (y>yo) && (y<psize+yo) % find waveform display that click is in
+                
+                
+                npoints=numel(mua.ts_spike);
+                %xa=  (linspace(0,psize,npoints));
+                samples=((x-(1+xo))/psize)*npoints;
+                samples_from=max(min(round(samples),npoints),1);
+                
+                text(-.5,0,'click on secondsample in waveform', 'BackgroundColor',[.7 .9 .7]);
+                drawnow;
+                
+                plot([1 1].*x,yo+[0 psize],'k--');
+                
+                [x,y,b] = sc_ginput(1);
+                
+                
+                npoints=numel(mua.ts_spike);
+                %xa=  (linspace(0,psize,npoints));
+                samples=((x-(1+xo))/psize)*npoints;
+                samples_to=max(min(round(samples),npoints),1);
+                
+                
+                
+                plot([1 1].*x,yo+[0 psize],'k--');
+                text(-.5,0,'computing PCA for visible clusters in selected waveform sample range... ', 'BackgroundColor',[.7 .9 .7]);
+                drawnow;
+                
+                
+                features=sc_compute_extra_PCA_coeffs_partial(features,mua,samples_from,samples_to);
+                
+            end;
+        end;
+        
+        
         
     end;
     
