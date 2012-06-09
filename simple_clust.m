@@ -164,7 +164,7 @@ while run
         
         [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files to preprocess'],'MultiSelect','on');
         
-        
+        if FilterIndex(1)~=0
         for b=1:numel(FileName)
             
             features.muafile =[PathName,FileName{b}];
@@ -175,7 +175,7 @@ while run
             sc_save_dialog;
             
         end;
-        
+        end;
         dataloaded=0;
         
     end;
@@ -185,13 +185,16 @@ while run
         
         [multifiles,PathName,FilterIndex] = uigetfile({'*_simpleclust.mat', 'simpleclust file';'*.nse;*.nst;*.ntt;','all base electrode file types';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files to cluster'],'MultiSelect','on');
         
+        if FilterIndex(1)~=0
         s_opt.batch=1; % indicate we're doing a batch
         multi_N=1; % cycle trough many files
         
         
         features.muafile =[PathName,multifiles{multi_N}];
         sc_load_mua_dialog;
-        
+        else
+            dataloaded=0;
+        end;
         
     end;
     
