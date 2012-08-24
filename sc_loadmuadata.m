@@ -78,16 +78,40 @@ switch muafile(end-2:end)
             else
                 
                 % parse jakobs ad hoc format here
-                % for now we only deal with simple electrodes
+                % for now we only deal with simple electrodes and ones
+                % extracted from laminar recordings
                 
+                if size(mua.waveforms,2)==3% extracted from laminar, 3 contacts!
+                    
+                    mua.ncontacts = 3;
+                    
+                    
+                 
+                    
+                    % reformat wavewforms, flatten for display
+                    
+                    %D= (squeeze(reshape(mua.waveforms,1,128,size(mua.waveforms,3))));
+                    D=[squeeze(mua.waveforms(:,1,:))',squeeze(mua.waveforms(:,2,:))',squeeze(mua.waveforms(:,3,:))'];
+                    mua.waveforms=D;
+                    
+                    mua.ts_spike=linspace(-.5,2.5,93); %  we do  31 samples at 30303Hz, so its a 1.056ms window
+                    
+ 
+                    features=sc_mua2features(mua);
+                     sourcechannel=mua.sourcechannel;
+                    features.sourcechannel=sourcechannel;
+                    
+                    
+                else
                 mua.ncontacts = 1;
                 
                 if dofeatures
                     features=sc_mua2features(mua);
+                     sourcechannel=mua.sourcechannel;;
                     features.sourcechannel=sourcechannel;
                 end;
             end;
-            
+        end;
             
         end;
         

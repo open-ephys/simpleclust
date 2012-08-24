@@ -46,7 +46,7 @@ drawnow;
 
 
 
-[coeffs,score]= princomp(mua.waveforms','econ');
+[coeffs,score]= princomp(zscore(mua.waveforms)','econ');
 
 if size(mua.waveforms,1)>8
     
