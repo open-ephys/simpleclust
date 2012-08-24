@@ -61,7 +61,7 @@ s_opt=[];
 
 s_opt.batch=0;
 
-s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap
+s_opt.auto_overlap = 0; % automatically loads other channels from same recording and computes spike overlap
 s_opt.auto_overlap_max = 6; %if >0, limits how many other channels are loaded
 
 s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
