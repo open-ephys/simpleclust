@@ -32,12 +32,12 @@ if strcmp(button,'Yes')
         drawnow;
         
     
-    save(outfilename,'spikes');
+    save(outfilename,'spikes','-v7.3');
     
     % save simpleclust state so we can just load it again
     % if needed
     outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
-    save(outfilename_sc,'features','mua');
+    save(outfilename_sc,'features','mua','-v7.3');
     
     disp(['saved to ',outfilename,' output for using in science']);
     disp(['saved to ',outfilename_sc,' can be loaded with simpleclust']);
