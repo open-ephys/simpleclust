@@ -70,6 +70,9 @@ if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
     
     
 else % select manually
+    if s_opt.auto_overlap_dontask
+        features.loadmultiple=0;
+    else
     if (debugstate >0) || (s_opt.batch)
         button='no';
     else
@@ -87,6 +90,7 @@ else % select manually
     else
         features.loadmultiple=0;
     end;
+    end
     
 end;
 

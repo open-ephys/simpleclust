@@ -101,7 +101,17 @@ switch muafile(end-2:end)
                      sourcechannel=mua.sourcechannel;
                     features.sourcechannel=sourcechannel;
                     
+                elseif size(mua.waveforms,2)==4 %tetrode recording
                     
+                      mua.ncontacts = 4;
+                        
+                    D=[squeeze(mua.waveforms(:,1,:))',squeeze(mua.waveforms(:,2,:))',squeeze(mua.waveforms(:,3,:))',squeeze(mua.waveforms(:,4,:))'];
+                    mua.waveforms=D;
+                    
+                    mua.ts_spike=linspace(-.5,2.5,93); %  we do  31 samples at 30303Hz, so its a 1.056ms window
+                    mua.ts_spike=linspace(0,4,size(mua.waveforms,2));  
+                      
+                         features=sc_mua2features(mua);
                 else
                 mua.ncontacts = 1;
                 
@@ -339,7 +349,7 @@ if ~skipsetup
     
     
     %features.clusters(1:100)=2;
-    features.labelcategories = {' ','noise','unit','unit_{FS}','unit_{RS}','unit_{huge}','mua big','mua wide','mua thin','mua small','negative','artefact',};
+    features.labelcategories = {' ','noise','neg','unit','unit_{FS}','unit_{RS}','unit_{huge}','mua big','mua wide','mua thin','mua small','negative','artefact',};
     
     features.clusterfstrs={'k.','b.','r.','g.','c.','r.','k.','r.','b.'};
     features.colors=[.7 .7 .7; 1 0 0; 0 1 0; 0 0 1; 1 .7 0; 1 .2 1; 0 1 1; 1 .5 0; .5 1 0; 1 0 .5];
