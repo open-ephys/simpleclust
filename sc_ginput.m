@@ -2,7 +2,7 @@ function [x,y,b]  = sc_ginput(n)
 
 global debugstate;
 
-debuginput= [-1.1 1.2 1 ;  % click load buttong
+debuginput= [-1.1 1.2 1 ;  % click load button
   %  -1.1316    1.1370    1.0000;  % do some cluster stuff
     0.0592   -1.0419    1.0000;
     -0.4966    1.1272    1.0000;
@@ -27,12 +27,14 @@ debuginput= [-1.1 1.2 1 ;  % click load buttong
     -1.1451   -0.6522    1.0000;];
 
 
-if (debugstate>=size(debuginput,1))
+if (debugstate >= size(debuginput,1))
     error('last debug state reached!');
 end;
 
-if (debugstate ==0);
-    [x,y,b] = ginput(n);
+if (debugstate == 0);
+    
+    [x,y,b] = ginput(n); % draws crosshairs and returns location of click
+
 else
     
     x=debuginput(debugstate,1);
@@ -40,8 +42,5 @@ else
     b=debuginput(debugstate,3);
     
     debugstate =debugstate+1;
-    
-    
-    
     
 end;
