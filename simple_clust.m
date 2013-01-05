@@ -148,9 +148,10 @@ while run
         
         sc_timeline(features,mua,x,y,b);
         
-        if features.selected>0
-            sc_plot_cluster_info(features,features.selected);
-        end;
+        % ISI is now plotted for all clusters
+       % if features.selected>0
+       %     sc_plot_cluster_info(features,features.selected);
+       % end;
         
         features.highlight = 0; % remove highlight on each click
     end;

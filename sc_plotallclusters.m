@@ -16,6 +16,22 @@ for i=1:features.Nclusters
     
     imagesc( linspace(1,1+psize,features.imagesize)+xo , linspace(0,psize,features.imagesize)+yo , im );
     
+    
+    
+    %  plot ISI distribution
+    try numel(features.isiplots) % update the isi plots in case this is an older file
+    catch
+        features=sc_updateclusterimages(features,mua);
+    end;
+
+    stairs(linspace(0,psize,features.isioptions(1).nbins)+xo+1,(features.isiplots{i}/4)+yo-psize+1-(psize/2),'k','color',[.9 .9 1].*.6,'LineWidth',2);
+    
+    %   text(xpos,ypos-psize-.1,'0');
+    %   text(xpos+psize/2,ypos-psize-.1,'ms');
+    %   text(xpos+psize-0.1,ypos-psize-.1,num2str(features.isioptions(1).tmax));
+    
+    
+    
     text(xo+1.01,yo+0.02,num2str(i),'color',[0 0 0]);
     
     plot(xo+1.06,yo+0.03,features.clusterfstrs{i},'MarkerSize',22,'color',features.colors(i,:));
@@ -32,7 +48,7 @@ for i=1:features.Nclusters
         
     end;
     
-        
+    
     if i>0 % plot options symbol
         plot( [1.0 0.9]+xo+psize , [psize-0.1 psize]+yo,'k'); % diagonal line
         text(xo+0.96+psize,yo+psize-0.02,'+');
@@ -70,6 +86,10 @@ for i=1:features.Nclusters
         
         
     end;
+    
+    
+    
+    
 end;
 
 colormap gray;

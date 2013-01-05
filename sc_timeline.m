@@ -29,8 +29,8 @@ if nargout==0 % plot
         this=find(features.clusters==c);
         
         imrate(c,:)=min(histc(features.ts(this),ll),50)./50;
-        imrate(c,:)=1-(  imrate(c,:)./max(imrate(c,:))  );
         
+        imrate(c,:)=1-(  imrate(c,:)./max(imrate(c,:))  );
         plot(-1.12, (yto+(yfrom-yto)*c./features.Nclusters)-0.02  ,features.clusterfstrs{c},'MarkerSize',22,'color',features.colors(c,:));
         
     end;

@@ -1,9 +1,38 @@
 function features=sc_updateclusterimages(features,mua);
 
+
+
+% first, update the ISI plots
+for i=1:features.Nclusters
+    
+    % precompute ISI hist.
+    
+    features.isioptions(i).tmax = max(1,features.isioptions(1).tmax);
+    
+    
+    l=linspace(0,features.isioptions(1).tmax,features.isioptions(1).nbins);
+    
+    thisclust=find(features.clusters==i);
+    
+    dt= diff(features.ts(thisclust).*1000);
+    dt(dt==0)=[];
+     psize=0.65;
+     
+    h=histc(dt,l);
+    h=(h./max(h)).*psize.*.95;
+    
+    features.isiplots{i}=h;
+  
+    
+end;
+
+
+
+% now update actual cluster images
+
 features.clusterimages=zeros(features.imagesize,features.imagesize,12);
 
 usefastmethod =1;
-
 
 % first, if usefastmethod, interpolate up all waveforms so they look nicer
 if usefastmethod
@@ -58,7 +87,6 @@ for i=1:features.Nclusters
     
     if usefastmethod % fast, not as pretty
         
-        
         grid=zeros(size(ll)); grid(round(end/2))=1;
         
         for k=1:features.imagesize % go trough image instead of waveform points, for speed and image quality
@@ -85,8 +113,6 @@ for i=1:features.Nclusters
     else % old, slow method
         
         for j=1:numel(inthiscluster)
-            
-            
             
             lastx=0; % avoid drawing the same line twice
             

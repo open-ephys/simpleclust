@@ -1,7 +1,7 @@
 function varargout=extramenu(features,mua,x,y)
 
 pos=[-1  -.8 -.6 -.5 -.4 -.3 -.2 0.0 0.1 0.4 0.5 0.8 1 1.2 1.4 1.7 1.9];
-
+pos(6:end)=pos(6:end)+.2;
 
 plot([-1.3 3.3] ,[-1 -1],'color',[.7 .7 .7]);
     
@@ -43,7 +43,7 @@ if nargout==0 % plot
     plot([1 1].*pos(i) ,[-1.1 -1],'color',[.7 .7 .7]);
     plot([1 1].*pos(i+1) ,[-1.1 -1],'color',[.7 .7 .7]);
     
-    text(pos(i)+0.02,-1.05,'isi+');
+    text(pos(i)+0.02,-1.05,['isi+ [',num2str(features.isioptions(1).tmax),'ms]']);
     
     i=6;
     
@@ -163,11 +163,11 @@ else % evaluate x,y
         
     end;
     
-    if features.selected>0
+   % if features.selected>0
         if  features.isioptions(1).tmax>15
             c=5;
         else
-            c=1;
+            c=2;
         end;
         
         i=5; % ISI +
@@ -183,7 +183,7 @@ else % evaluate x,y
             features.isioptions(1).tmax=max(1,features.isioptions(1).tmax-c);
             
         end;
-    end;
+  %  end;
     
     i=7; % toggle plotgroup
     if (x>pos(i)) && (x<pos(i+1))

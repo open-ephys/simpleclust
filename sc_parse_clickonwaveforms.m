@@ -7,13 +7,13 @@ psize=0.65;
 xpos=[0 0 0 1 1 1 2 2 2];
 ypos=[1 2 3 1 2 3 1 2 3];
 
-labelpos=[linspace(0, psize-.3,9),linspace(0, psize-.3,10) ,linspace(0, psize-.3,10) ; zeros(1,9),ones(1,10).*.2,ones(1,10).*.3];
+labelpos=[linspace(0, psize-.3,7),linspace(0, psize-.3,10) ,linspace(0, psize-.3,10) ; zeros(1,7),ones(1,10).*.2,ones(1,10).*.3];
 
 for i=1:features.Nclusters
     xo=(xpos(i)*(psize+.01))+.05;
     yo=-(ypos(i)*(psize+.01))+1;
     
-   
+    
     
     if (x> 1+xo) && (x<1+xo+psize) && (y>yo) && (y<psize+yo) % find waveform display that click is in
         
@@ -92,8 +92,8 @@ for i=1:features.Nclusters
             
             % plot options
             
-            optlabels={'add L_2 distance feature', 'add P_{in cluster} feature'};
-            for j=2;
+            optlabels={'move cluster to noise', '[add P_{in cluster} feature]', '[add reg.kernel regression feature]','merge with cluster'};
+            for j=1:numel(optlabels)
                 text(labelpos(2,j)+xo+1.03,labelpos(1,j)+yo+.15,optlabels{j},'color',[0 0 0],'BackgroundColor',[.9 .9 .9]);
                 %just click on nearest, not pretty but easy
                 lx(j)=labelpos(2,j)+xo+1.06;
@@ -107,15 +107,20 @@ for i=1:features.Nclusters
             [~,m]=min(d);
             
             if ib==1
-                if m==1 % add feature based on euclidian distance from cluster mean
-                    % not implemented yet
+                if m==1 % move tcluster to noise
+                    
+                    incluster=find(features.clusters==i );
+                    features.clusters_undo=features.clusters;
+                    features.clusters(incluster)=2;
+                    features=sc_updateclusterimages(features,mua);
                     
                 end;
                 
+                
+                
+                
                 if m==2 % add feature based on likelihood of any spikewaveform to be in cluster based on waveform dist.
-                    
-                    
-                    
+                             
                     %{
                 figure(4); clf; % debug
                 imagesc(-features.clusterimages(:,:,3)); hold on;
@@ -137,15 +142,68 @@ for i=1:features.Nclusters
                         end;
                         
                     end;
+
+                    features.data(end+1,:)= P_in';
+                    
+                    features.name{size(features.data,1)}=['P_{in ',num2str(i),'}'];
+                    
+                    features=sc_scale_features(features);
+                end;
+                
+                if m==3 % add feature based on reg kernel regression on waveforms
+                    
+    
+                    skip=50;
+                    fx=mua.waveforms;
+                    fy=(features.clusters'==i);
+                    kernel='linear';
+                  %  kernel='gaussian';
+                    %kernel='polynomial';
+                    
+                    % instead: select N or all positive exmaples, and same
+                    % number of negative ones
+                    p=zscore(fx(1:skip:end,1:2:end)')';
+                    coeffs =rlsTrain( fy(1:skip:end) ,  p ,kernel,.1);
+                 
+                    
+                    regpredict = rlsPredict(zscore(fx(:,1:2:end)')',p,coeffs,kernel);
+                    
+                    features.data(end+1,:)= regpredict';
+                    
+                    features.name{size(features.data,1)}=['reg_{in ',num2str(i),'}'];
+                    
+                    features=sc_scale_features(features);
+                end;
+                
+                if m==4 % merge cluster with other cluster
+                    
+                    incluster=find(features.clusters==i );
+                    features.clusters_undo=features.clusters;
+                    
+                    % select target cluster
+                    
+                      text(0,0,['select target cluster'],'color',[0 0 0],'BackgroundColor',[.9 .9 .9]);
+                          
+                    
+                    [x,y]=ginput(1);
+                    targetcluster=[];
+                    for j=1:features.Nclusters
+                        xoo=(xpos(j)*(psize+.01))+.05;
+                        yoo=-(ypos(j)*(psize+.01))+1;    
+                        if (x> 1+xoo) && (x<1+xoo+psize) && (y>yoo) && (y<psize+yoo) % find waveform display that click is in
+                            targetcluster=j;
+                        end ;
+                    end;
+                    
+                    if numel(targetcluster)>0
+                        features.clusters(incluster)=targetcluster;
+                        features=sc_updateclusterimages(features,mua);
+                    end;
                     
                 end;
                 
                 
-                features.data(end+1,:)= P_in';
                 
-                features.name{size(features.data,1)}=['P_{in ',num2str(i),'}'];
-                
-                features=sc_scale_features(features);
             end; %left button?
             
             
