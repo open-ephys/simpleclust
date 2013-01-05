@@ -47,8 +47,8 @@ X - make add function take spikes only from visible clusters
 
 %}
 
-run=1;
-dataloaded=0;
+run = 1;
+dataloaded = 0;
 
 global debugstate;
 debugstate = 0; % 0: do nothing, 1: go trough following states
@@ -57,9 +57,9 @@ debuginput = [0 0 0];
 %addpath(pwd);
 %addpath(fullfile(pwd,'read_cheetah'));
 
-s_opt=[];
+s_opt = [];
 
-s_opt.batch=0;
+s_opt.batch = 0;
 
 s_opt.auto_overlap = 0; % automatically loads other channels from same recording and computes spike overlap
 s_opt.auto_overlap_dontask = 1; % dont ask if others should be loaded
@@ -68,7 +68,7 @@ s_opt.auto_overlap_max = 6; %if >0, limits how many other channels are loaded
 s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
 s_opt.auto_noise_trs = .5; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
 
-s_opt.auto_number =1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data
+s_opt.auto_number = 1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data
 
 
 if numel(strfind(path,'read_cheetah')) ==0
@@ -78,11 +78,9 @@ end;
 %% main loop
 
 while run
-    figure(1); clf;hold on; grid off;
     
-    
-    
-    
+    figure(1); clf; hold on; grid off;
+
     fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.92 .92 .92]);
     
     set(gca, 'position', [0 0 1 1]);
@@ -162,7 +160,7 @@ while run
     [x,y,b] = sc_ginput(1);
     
     
-    if (x<-1)&& (y>0.9) && (y<1) % batch (pre)process
+    if (x < -1) && (y > 0.9) && (y < 1) % batch (pre)process button clicked
         
         [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files to preprocess'],'MultiSelect','on');
         
@@ -182,7 +180,8 @@ while run
         
     end;
     
-    if (x<-1)&& (y>0.8) && (y<0.9) % batch run - open folder of simpleclust files and loop trough sorting them one at a time
+    if (x < -1) && (y > 0.8) && (y < 0.9) % batch run button clicked
+        % open folder of simpleclust files and loop trough sorting them one at a time
         
         
         [multifiles,PathName,FilterIndex] = uigetfile({'*_simpleclust.mat', 'simpleclust file';'*.nse;*.nst;*.ntt;','all base electrode file types';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files to cluster'],'MultiSelect','on');
@@ -202,6 +201,7 @@ while run
     
     
     if dataloaded
+
         features=sc_parse_feature_selection(x,y,features);
         
         features=sc_parse_custerselection(features,x,y,mua);
@@ -212,73 +212,77 @@ while run
         
         features=sc_timeline(features,mua,x,y,b);
         
-        if y<-1 && y>-1.1
+        if y < -1 && y > -1.1
             features=  sc_extramenu(features,mua,x,y);
         end;
         
-        if (b==3) && (abs(x)<1) && (abs(y)<1)
+        if (b == 3) && (abs(x) < 1) && (abs(y) < 1)
             features=sc_parse_highlight_wave(x,y,features);
         end;
+        
     end;
     
-    if (x<-1)&& (y>1)
+    if (x < -1) && (y > 1) % either 'open' or 'save/exit' button clicked
         
-        if y > 1.1
-            
+        if y > 1.1 % 'open' button clicked
             
             disp('open');
             
             if s_opt.batch % open next file in batch
+                
                 if dataloaded
                     button = questdlg('Save and open next file?','open?','Yes','No','Yes');
                 else
-                    button='Yes';
+                    button = 'Yes';
                 end;
                 
                 sc_save_dialog;
                 
-                multi_N=multi_N+1;
-                
-                
+                multi_N = multi_N+1;
+               
                 features.muafile =[PathName,multifiles{multi_N}];
                 sc_load_mua_dialog;
-                
-                
-                
                 
             else % open one file
                 
                 if dataloaded
                     button = questdlg('Open new MUA dataset?','open?','Yes','No','Yes');
                 else
-                    button='Yes';
+                    button = 'Yes';
                 end;
+                
                 if strcmp(button,'Yes')
                     
-                    % load MUa data
+                    % load MUA data
                     global debugstate
                     if debugstate > 0
                         
                         PathName = '/home/jvoigts/Dropbox/em003/good/';
                         FileName =  'ST11.nse';
                     else
-                        [FileName,PathName,FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
+                        
+                        [FileName, PathName, FilterIndex] = uigetfile({'*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
+                        
+                       % disp(FileName)
+                       % disp(PathName)
+                       % disp(FilterIndex)
                         
                     end;
                     
-                    features.muafile =[PathName,FileName];
-                    % ask user for channel number this file comes from
-                    % could parse filename here but the small time saving is
-                    % not worth the loss of flexibility
-                    %
+                    if (FileName ~= 0)
                     
-                    
-                    
-                    %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
-                    sc_load_mua_dialog;
+                        features.muafile = [PathName, FileName];
+                        % ask user for channel number this file comes from
+                        % could parse filename here but the small time saving is
+                        % not worth the loss of flexibility
+                        %
+                        
+                        %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
+                        sc_load_mua_dialog;
+                    end
                     
                 else
-                    run=0;
+                    run = 0;
                     return;
                 end;
             end;
