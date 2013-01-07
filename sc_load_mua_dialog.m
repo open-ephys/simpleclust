@@ -27,15 +27,16 @@ end;
 if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
     
     features.loadmultiple=1;
-    otherfiles=[dir([PathName,'*.ntt']) ;dir([PathName,'*.nst']) ;dir([PathName,'*.nse'])];
+    otherfiles=[ dir([PathName,'*.ntt']) ;dir([PathName,'*.nst']) ;dir([PathName,'*.nse']) ;dir([PathName,'*_extracted.mat'])];
     
-    cc=1;j=0;
+    cc=1;j=1;
     
     while cc && (j<=numel(otherfiles))   % throw put current channel
-        j=j+1;
+     
         if strcmp(otherfiles(j).name,mua.fname)
             otherfiles(j)=[]; cc=0;
-        end;
+        end; 
+        j=j+1;
     end;
     
     if s_opt.auto_overlap_max > 0  % cut down to limits
