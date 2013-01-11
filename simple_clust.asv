@@ -295,34 +295,7 @@ while run
                     
                     sc_save_dialog;
                     
-                    button = questdlg('Quit or load new file?','Quit?','Load new file...','Quit','Load new file...');
-                    if strcmpi(button, 'quit'),
-                        run=0;
-                        continue;
-                    else
-                        % load MUa data
-                        global debugstate
-                        if debugstate > 0
-                            
-                            PathName = '/home/jvoigts/Dropbox/em003/good/';
-                            FileName =  'ST11.nse';
-                        else
-                            
-                            [FileName,PathName,FilterIndex] = uigetfile({'*.wf;*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.wf','Waveform file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},'choose input file');
-                            
-                        end;
-                        
-                        features.muafile =[PathName,FileName];
-                        % ask user for channel number this file comes from
-                        % could parse filename here but the small time saving is
-                        % not worth the loss of flexibility
-                        %
-                        
-                        
-                        
-                        %   features.muafile='/home/jvoigts/Documents/moorelab/acute_test_may27_2011/data_2011-05-20_00-12-09_oddball/spikes_from_csc/mua_ch5.mat';
-                        sc_load_mua_dialog;
-                    end
+                    run=0;
                 end;
             else
                 clf; drawnow;

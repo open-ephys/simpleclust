@@ -1,16 +1,18 @@
 function [features,mua]=sc_loadmuadata(muafile, dofeatures,s_opt)
 
-
 skipsetup=0;
 
+muafile
+[~,~,muafile_ext] = fileparts(muafile);
+muafile_ext = muafile_ext(2:end);
 
-switch muafile(end-2:end)
+switch muafile_ext
     case 'mat'
         load(muafile);
         
-        if ~ exist('mua') % no mua var in there, try doreas format
+        if ~ exist('mua', 'var') % no mua var in there, try doreas format
             
-            if exist('times_all') % marker for doreas mat format
+            if exist('times_all', 'var') % marker for doreas mat format
                 
                 if dofeatures
                     if s_opt.auto_number==0
@@ -67,8 +69,7 @@ switch muafile(end-2:end)
             end;
             
         else % file has a variable mua in it, probably jakobs own format
-            
-            if  exist('features') %marker for simple_clust output format
+            if  exist('features', 'var') %marker for simple_clust output format
                 
                 % we just loaded previous simple_clust data
                 % in theory there should be nothing left to do here?
@@ -86,7 +87,7 @@ switch muafile(end-2:end)
                     mua.ncontacts = 3;
                     
                     
-                 
+                    
                     
                     % reformat wavewforms, flatten for display
                     
@@ -96,32 +97,34 @@ switch muafile(end-2:end)
                     
                     mua.ts_spike=linspace(-.5,2.5,93); %  we do  31 samples at 30303Hz, so its a 1.056ms window
                     
- 
+                    
                     features=sc_mua2features(mua);
-                     sourcechannel=mua.sourcechannel;
+                    sourcechannel=mua.sourcechannel;
                     features.sourcechannel=sourcechannel;
                     
                 elseif size(mua.waveforms,2)==4 %tetrode recording
                     
-                      mua.ncontacts = 4;
-                        
+                    mua.ncontacts = 4;
+                    
                     D=[squeeze(mua.waveforms(:,1,:))',squeeze(mua.waveforms(:,2,:))',squeeze(mua.waveforms(:,3,:))',squeeze(mua.waveforms(:,4,:))'];
                     mua.waveforms=D;
                     
                     mua.ts_spike=linspace(-.5,2.5,93); %  we do  31 samples at 30303Hz, so its a 1.056ms window
-                    mua.ts_spike=linspace(0,4,size(mua.waveforms,2));  
-                      
-                         features=sc_mua2features(mua);
-                else
-                mua.ncontacts = 1;
-                
-                if dofeatures
+                    mua.ts_spike=linspace(0,4,size(mua.waveforms,2));
+                    
                     features=sc_mua2features(mua);
-                     sourcechannel=mua.sourcechannel;;
+                    sourcechannel=mua.sourcechannel;
                     features.sourcechannel=sourcechannel;
+                else
+                    mua.ncontacts = 1;
+                    
+                    if dofeatures
+                        features=sc_mua2features(mua);
+                        sourcechannel=mua.sourcechannel;;
+                        features.sourcechannel=sourcechannel;
+                    end;
                 end;
             end;
-        end;
             
         end;
         
@@ -324,6 +327,65 @@ switch muafile(end-2:end)
         mua.ts_spike=linspace(-.5,3.5,128); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
         
         
+        if dofeatures
+            features=sc_mua2features(mua);
+            features.sourcechannel=sourcechannel;
+        end;
+        
+    case 'wf'
+        if dofeatures
+            if s_opt.auto_number==0
+                prompt = {['source channel nr for file ',muafile]};
+                dlg_title = 'channel nr';
+                num_lines = 1;
+                def = {''};
+                features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
+                features.sourcechannel= str2num(features.chnumstr{1});
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+            else                
+                %do it automatically
+                [~,n,~]=fileparts(muafile);
+                disp('automatically detecting ch number for');
+                disp(muafile);                
+                
+                chstr = regexpi(n, '_Ch(\d)', 'tokens');
+                if isempty(chstr),
+                    ch = 0;
+                else
+                    %We'll take the first channel as our channel
+                    ch = str2num(chstr{1}{1});
+                end
+                disp(['-> ch ',num2str(ch)]);
+                features.chnumstr = ch;
+                features.sourcechannel= ch;
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                
+            end;
+            
+        end;
+        
+        
+        % load tim's format
+        mua.opt = LoadSpikeWF(muafile, [], 6);
+        mua.fname=muafile;
+        
+        mua.Nspikes = LoadSpikeWF(muafile, [], 5);
+        
+        %Load waveforms       
+        [mua.ts, wv] = LoadSpikeWF(muafile, [1 mua.Nspikes], 4);
+        
+        % concatenate all waveforms        
+        mua.ncontacts = size(wv,2);
+        
+        %Copy waveforms over
+        size(wv)
+        mua.waveforms = zeros(size(wv, 1), size(wv, 2)*size(wv, 3));
+        for i = 1:size(wv, 1),
+            mua.waveforms(i, :) = reshape(squeeze(wv(i, :, :))', [1 size(wv, 2)*size(wv, 3)]);
+        end
+        size(mua.waveforms)
+        
+        mua.ts_spike = linspace(mua.opt.SpikeExtract_WFRange(1), mua.opt.SpikeExtract_WFRange(2), mua.opt.NumPointsInWF)./mua.opt.SampleFrequency;
         if dofeatures
             features=sc_mua2features(mua);
             features.sourcechannel=sourcechannel;
