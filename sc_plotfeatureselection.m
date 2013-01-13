@@ -2,7 +2,8 @@ function plotfeatureselection(features);
 
 N=numel(features.name);
 
-    pos=[linspace(0.8,-1,N),-1.1];
+    
+    pos=[linspace(0.8,-1,N+1)];
 
 for i=1:N
     

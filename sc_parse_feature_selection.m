@@ -1,7 +1,8 @@
 function features = parse_feature_selection(x,y,features)
 
 N=numel(features.name);
-pos=[linspace(0.8,-1,N),-1.1];
+
+pos=[linspace(0.8,-1,N+1)];
 
 if  (x<-1) && ( y<1) && (x>-1.2)
     
