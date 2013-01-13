@@ -28,7 +28,7 @@ end;
 if strcmp(button,'Yes')
     
     
-        text(-.5,0,'saving... ', 'BackgroundColor',[.7 .9 .7]);
+        save_text_h = text(-.5,0,'saving... ', 'BackgroundColor',[.7 .9 .7]);
         drawnow;
         
     
@@ -41,7 +41,7 @@ if strcmp(button,'Yes')
     
     disp(['saved to ',outfilename,' output for using in science']);
     disp(['saved to ',outfilename_sc,' can be loaded with simpleclust']);
-    
+    delete(save_text_h);
 else
     disp('aborted saving open files');
     
