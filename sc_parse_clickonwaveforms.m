@@ -156,7 +156,12 @@ for i=1:features.Nclusters
                     skip=50;
                     fx=mua.waveforms;
                     fy=(features.clusters'==i);
-                    kernel='linear';
+   
+                    t = classregtree(fx,fy);
+                    yfit = eval(t,fx);
+                    
+                    %{
+   kernel='linear';
                   %  kernel='gaussian';
                     %kernel='polynomial';
                     
@@ -173,6 +178,7 @@ for i=1:features.Nclusters
                     features.name{size(features.data,1)}=['reg_{in ',num2str(i),'}'];
                     
                     features=sc_scale_features(features);
+                    %}
                 end;
                 
                 if m==4 % merge cluster with other cluster
@@ -208,9 +214,10 @@ for i=1:features.Nclusters
             
             
         else % click on actual waveform
+            % make new feature with amplitude at that point
             npoints=numel(mua.ts_spike);
             %xa=  (linspace(0,psize,npoints));
-            samples=[-2:2]+((x-(1+xo))/psize)*npoints;
+            samples=[-1:1]+((x-(1+xo))/psize)*npoints;
             samples=max(min(round(samples),npoints),1);
             
             % calculate new feature from avg value at that sample
@@ -223,6 +230,8 @@ for i=1:features.Nclusters
             
             features=sc_scale_features(features);
             
+            % select that feature
+            features.featureselects(2)=size(features.data,1);
         end;
     end;
     
