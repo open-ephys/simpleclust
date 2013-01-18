@@ -1,4 +1,4 @@
-function sc_plotallclusters(features,mua);
+function sc_plotallclusters(features,mua)
 
 psize=0.65;
 %plot(mua.ts_spike+1.5,mua.waveforms./1000);
@@ -19,7 +19,7 @@ for i=1:features.Nclusters
     
     
     %  plot ISI distribution
-    try numel(features.isiplots) % update the isi plots in case this is an older file
+    try numel(features.isiplots); % update the isi plots in case this is an older file
     catch
         features=sc_updateclusterimages(features,mua);
     end;
@@ -68,7 +68,6 @@ for i=1:features.Nclusters
     
     if features.highlight>0
         
-        
         %npoints=numel(mua.ts_spike); % crashes with tetrode data
         npoints=size(mua.waveforms,2);
         
@@ -77,8 +76,8 @@ for i=1:features.Nclusters
         
         
         if features.plotgroup==1 % display number of wveforms
-            for i=1:10
-                yb=( mua.waveforms(features.highlight_multiple(i),:)) *features.waveformscale .*psize;
+            for j=1:10
+                yb=( mua.waveforms(features.highlight_multiple(j),:)) *features.waveformscale .*psize;
                 plot(xa+xo+1,yb+yo+(psize/2),'k--','color',[.1 .1 .1]);
             end;
         end;
@@ -93,4 +92,3 @@ for i=1:features.Nclusters
 end;
 
 colormap gray;
-

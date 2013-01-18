@@ -27,8 +27,6 @@ if isa(color,'char')
             color=[0 0 0];
         case 'kk'
             color=[0.5 0.5 0.5];
-                    case 'kk'
-            color=[0.5 0.5 0.5];
         case 'c'
             color=[0 .5 .5];
         case 'p'

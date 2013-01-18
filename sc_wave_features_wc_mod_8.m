@@ -1,7 +1,7 @@
-function [inspk] = wave_features_mod_8(spikes);
-%Calculates the spike features
-% modified from wave_clus code
-%
+function [inspk] = sc_wave_features_mod_8(spikes);
+% Calculates the spike features
+% adapted from wave_clus code by Rodrigo Quian Quiroga
+% (see http://www.vis.caltech.edu/~rodri/Wave_clus/Wave_clus_home.htm)
 spikes=spikes';
 nspk=size(spikes,1);
 ls = size(spikes,2);

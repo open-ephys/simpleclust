@@ -1,4 +1,4 @@
-function features=remove_from_cluster(features,i,featureselects)
+function features=sc_remove_from_cluster(features,i,featureselects)
 
 
 [px,py] =sc_getpolygon(features,features.colors(i,:));

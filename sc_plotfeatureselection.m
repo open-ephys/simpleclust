@@ -1,4 +1,4 @@
-function plotfeatureselection(features);
+function sc_plotfeatureselection(features)
 
 N=numel(features.name);
 

@@ -1,4 +1,4 @@
-function features=compute_extra_wavelet_coeffs(features,mua)
+function features=sc_compute_extra_wavelet_coeffs(features,mua)
 
 features.numextrafeaatures=features.numextrafeaatures+1;
 
