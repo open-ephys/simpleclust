@@ -1,4 +1,4 @@
-function varargout=extramenu(features,mua,x,y)
+function varargout=extramenu(features,mua,x,y,b)
 
 pos=[-1  -.8 -.6 -.5 -.4 -.3 -.2 0.0 0.1 0.4 0.5 0.8 1 1.2 1.4 1.7 1.9];
 pos(6:end)=pos(6:end)+.2;
@@ -163,14 +163,35 @@ else % evaluate x,y
         
     end;
     
-   % if features.selected>0
-        if  features.isioptions(1).tmax>15
-            c=5;
-        else
-            c=2;
+    % if features.selected>0
+    if  features.isioptions(1).tmax>15
+        c=5;
+    else
+        c=2;
+    end;
+    
+    
+    
+    i=5; % ISI +
+    if b==3  % on right click open up menu for manual entry
+        if   ((x>pos(i)) && (x<pos(i+1)) && (features.selected >0)) || ( (x>pos(i)) && (x<pos(i+1)) && (features.selected >0))
+            prompt={'Enter max ISI lag (ms)'};
+            name='ISI lag';
+            numlines=1;
+            defaultanswer={'10'};
+            
+            answer=inputdlg(prompt,name,numlines,defaultanswer);
+            try  features.isioptions(1).tmax=str2num(answer{1});
+            catch
+                features.isioptions(1).tmax=10;
+            end;
+            if numel( features.isioptions(1).tmax)==0
+                features.isioptions(1).tmax=10;
+            end;
+            
         end;
+    else % otherwise do +/-
         
-        i=5; % ISI +
         if (x>pos(i)) && (x<pos(i+1)) && (features.selected >0)
             features.isioptions(1).tmax=features.isioptions(1).tmax+c;
             
@@ -183,7 +204,8 @@ else % evaluate x,y
             features.isioptions(1).tmax=max(1,features.isioptions(1).tmax-c);
             
         end;
-  %  end;
+    end;
+    %  end;
     
     i=7; % toggle plotgroup
     if (x>pos(i)) && (x<pos(i+1))
