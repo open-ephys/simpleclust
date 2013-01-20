@@ -1,12 +1,40 @@
-%
-%   Simple Clust v0.4
-%
-%   alpha version, not for redistribution
-%   email me if there's any issues or features you'd like to see added
-%
-%
-%   apr 2012, Jakob Voigts (jvoigts@mit.edu)
+%{
+   -----------------------------------------------------------------------
+  
+    Simple Clust v0.5
+   
+    (c) jan. 2012, Jakob Voigts (jvoigts@mit.edu)
+ 
+    Beta version, use at your own risk
 
+    -----------------------------------------------------------------------
+
+
+    This is a program for manual clustering of spikes in matlab.
+    I dont recommend this software for scientific use by
+    anyone without full understanding of the methods.
+
+    Please post any issues you encounter, or any improvements or additions 
+    to github at:
+
+    http://github.com/moorelab/simpleclust
+
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+   %}
 
 %{
 features 2do:
@@ -43,25 +71,15 @@ X- add isi feature
 X - make add function take spikes only from visible clusters
  - allow to change color
  - save selected color for plotting in later analysis?
- - add template matching to selected cluster?
+X - add template matching to selected cluster?
+- auto-realigning of waveforms to interpolated peaks or even some more robust kernel thing
 
 %}
 
 
-run = 1;
-dataloaded = 0;
+%% user options
 
-
-global debugstate;
-debugstate = 0; % 0: do nothing, 1: go trough following states
-debuginput = [0 0 0];
-
-%addpath(pwd); % warn instead
-%addpath(fullfile(pwd,'read_cheetah'));
-
-s_opt = [];
-
-s_opt.batch = 0;
+s_opt = []; 
 
 s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap
 s_opt.auto_overlap_dontask = 1; % dont ask if others should be loaded
@@ -70,10 +88,20 @@ s_opt.auto_overlap_max = 6; %if >0, limits how many other channels are loaded
 s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
 s_opt.auto_noise_trs = .5; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
 
-
 s_opt.auto_number = 1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data
 
 
+%% init
+run = 1;
+dataloaded = 0;
+s_opt.batch = 0;
+
+global debugstate;
+debugstate = 0; % 0: do nothing, 1: go trough following states
+debuginput = [0 0 0];
+
+%addpath(pwd); % warn instead
+%addpath(fullfile(pwd,'read_cheetah'));
 
 if numel(strfind(path,'read_cheetah')) ==0
     error('make sure the read_cheetah dir is in your matlab path');
@@ -84,23 +112,29 @@ end;
 while run
     
     figure(1); clf; hold on; grid off;
-    
     fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.92 .92 .92]);
-    
     set(gca, 'position', [0 0 1 1]);
+    title('simple clust v0.5');
     
-    title('simple clust v0.4');
-    
-    if ~dataloaded
+    if ~dataloaded % plot title screen
         
         x=linspace(0,2*pi,80);
         
-        for i=2:12
-            plot(sin(x).*i.*.3,cos(x).*i.*.3,'k','LineWidth',28,'color',[.9 .9 .9])
+        for i=2:22 % rings
+            sc=(i/4)^2;
+            plot(sin(x).*sc.*.3,cos(x).*sc.*.3,'k','LineWidth',28,'color',[.9 .9 .9])
         end;
-        plot(sin(x).*1.*.3,cos(x).*1.*.3,'k','LineWidth',28,'color',[1 1 1])
         
-        text(0,0,'Simple Clust v0.4')
+        % plot some cute spike
+        plot(sin(x).*1.*.15,cos(x).*1.*.15,'k','LineWidth',58,'color',[1 1 1].*.9);
+        
+        ll=linspace(0,1,64); wf=sc_title_waveform;
+        plot(ll-.3,wf./40000,'k','LineWidth',25,'color',[1 1 1].*.92);
+        plot(ll(2:end-1)-.3,wf(2:end-1)./40000,'k','LineWidth',14,'color',[1 1 1].*.96);
+        plot(ll(3:end-2)-.3,wf(3:end-2)./40000,'k','LineWidth',9,'color',[1 1 1]);
+        
+        
+        text(0,0,'Simple Clust v0.5')
         xlim([-1.3, 3.3]);     ylim([-1.3, 1.2]);
         daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
         
@@ -112,8 +146,6 @@ while run
         text(-1.18,1.15-0.2,'batch prep');
         
         plot([-1.2 -1],[1 1],'color',[.0 .0 .0]);
-        
-        
         
     end;
     

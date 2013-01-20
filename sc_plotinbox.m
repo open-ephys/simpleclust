@@ -1,5 +1,5 @@
 
-function plotinbox(x,y,fstr,c,s)
+function sc_plotinbox(x,y,fstr,c,s)
 
 
 %plot([-1 1],[0 0],'color',[.5 .5 .5]);
@@ -7,7 +7,6 @@ function plotinbox(x,y,fstr,c,s)
 
 %x=x-min(x); x=x./max(x); x=x*2; x=x-1;
 %y=y-min(y); y=y./max(y); y=y*2; y=y-1;
-
 
 
 %x=x./max(abs(x));

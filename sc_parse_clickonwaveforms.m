@@ -2,8 +2,6 @@ function features= parse_clickonwaveforms(x,y,features,mua)
 
 
 psize=0.65;
-%plot(mua.ts_spike+1.5,mua.waveforms./1000);
-
 xpos=[0 0 0 1 1 1 2 2 2];
 ypos=[1 2 3 1 2 3 1 2 3];
 
@@ -116,11 +114,8 @@ for i=1:features.Nclusters
                     
                 end;
                 
-                
-                
-                
                 if m==2 % add feature based on likelihood of any spikewaveform to be in cluster based on waveform dist.
-                             
+                    
                     %{
                 figure(4); clf; % debug
                 imagesc(-features.clusterimages(:,:,3)); hold on;
@@ -142,7 +137,7 @@ for i=1:features.Nclusters
                         end;
                         
                     end;
-
+                    
                     features.data(end+1,:)= P_in';
                     
                     features.name{size(features.data,1)}=['P_{in ',num2str(i),'}'];
@@ -151,7 +146,7 @@ for i=1:features.Nclusters
                 end;
                 
                 if m==3 % add feature based on regression on waveforms
-                  
+                    
                     visible = find(ismember(features.clusters, find(features.clustervisible)));
                     
                     % balance training set a bit
@@ -169,7 +164,7 @@ for i=1:features.Nclusters
                     
                     fx_all=mua.waveforms; % do prediction on all, why not
                     feat=fx_all*b;
-                                        
+                    
                     features.data(end+1,:)= feat';
                     
                     features.name{size(features.data,1)}=['regr_{in ',num2str(i),'}'];
@@ -178,7 +173,7 @@ for i=1:features.Nclusters
                     
                     % select that feature
                     features.featureselects(2)=size(features.data,1);
-            
+                    
                 end;
                 
                 if m==4 % merge cluster with other cluster
@@ -188,14 +183,14 @@ for i=1:features.Nclusters
                     
                     % select target cluster
                     
-                      text(0,0,['select target cluster'],'color',[0 0 0],'BackgroundColor',[.9 .9 .9]);
-                          
+                    text(0,0,['select target cluster'],'color',[0 0 0],'BackgroundColor',[.9 .9 .9]);
+                    
                     
                     [x,y]=ginput(1);
                     targetcluster=[];
                     for j=1:features.Nclusters
                         xoo=(xpos(j)*(psize+.01))+.05;
-                        yoo=-(ypos(j)*(psize+.01))+1;    
+                        yoo=-(ypos(j)*(psize+.01))+1;
                         if (x> 1+xoo) && (x<1+xoo+psize) && (y>yoo) && (y<psize+yoo) % find waveform display that click is in
                             targetcluster=j;
                         end ;
