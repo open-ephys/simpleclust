@@ -7,7 +7,7 @@ psize=0.65;
 xpos=[0 0 0 1 1 1 2 2 2];
 ypos=[1 2 3 1 2 3 1 2 3];
 
-labelpos=[linspace(0, psize-.3,7),linspace(0, psize-.3,10) ,linspace(0, psize-.3,10) ; zeros(1,7),ones(1,10).*.2,ones(1,10).*.3];
+labelpos=[linspace(0, psize-.3,5),linspace(0, psize-.3,10) ,linspace(0, psize-.3,10) ; zeros(1,5),ones(1,10).*.2,ones(1,10).*.3];
 
 for i=1:features.Nclusters
     xo=(xpos(i)*(psize+.01))+.05;
@@ -92,7 +92,7 @@ for i=1:features.Nclusters
             
             % plot options
             
-            optlabels={'move cluster to noise', '[add P_{in cluster} feature]', '[add reg.kernel regression feature]','merge with cluster'};
+            optlabels={'move cluster to noise', '[add P_{in cluster} feature]', 'add regression feature','merge with cluster'};
             for j=1:numel(optlabels)
                 text(labelpos(2,j)+xo+1.03,labelpos(1,j)+yo+.15,optlabels{j},'color',[0 0 0],'BackgroundColor',[.9 .9 .9]);
                 %just click on nearest, not pretty but easy
@@ -150,35 +150,35 @@ for i=1:features.Nclusters
                     features=sc_scale_features(features);
                 end;
                 
-                if m==3 % add feature based on reg kernel regression on waveforms
+                if m==3 % add feature based on regression on waveforms
+                  
+                    visible = find(ismember(features.clusters, find(features.clustervisible)));
                     
-    
-                    skip=50;
-                    fx=mua.waveforms;
-                    fy=(features.clusters'==i);
-   
-                    t = classregtree(fx,fy);
-                    yfit = eval(t,fx);
+                    % balance training set a bit
+                    targets=(features.clusters(visible)'==i);
+                    if mean(targets)<.4 % if less than 40% of these are positive examples
+                        [~,ii]=sort(targets);
+                        visible(ii(sum(targets*2):end))=0; % set examples invisible until half of the visible ones are positive examples
+                    end;
+                    visible=logical(visible);
                     
-                    %{
-   kernel='linear';
-                  %  kernel='gaussian';
-                    %kernel='polynomial';
+                    fx=mua.waveforms(visible,:); % only run on visible ones
+                    fy=(features.clusters(visible)'==i);
                     
-                    % instead: select N or all positive exmaples, and same
-                    % number of negative ones
-                    p=zscore(fx(1:skip:end,1:2:end)')';
-                    coeffs =rlsTrain( fy(1:skip:end) ,  p ,kernel,.1);
-                 
+                    b=regress(fy,fx);
                     
-                    regpredict = rlsPredict(zscore(fx(:,1:2:end)')',p,coeffs,kernel);
+                    fx_all=mua.waveforms; % do prediction on all, why not
+                    feat=fx_all*b;
+                                        
+                    features.data(end+1,:)= feat';
                     
-                    features.data(end+1,:)= regpredict';
-                    
-                    features.name{size(features.data,1)}=['reg_{in ',num2str(i),'}'];
+                    features.name{size(features.data,1)}=['regr_{in ',num2str(i),'}'];
                     
                     features=sc_scale_features(features);
-                    %}
+                    
+                    % select that feature
+                    features.featureselects(2)=size(features.data,1);
+            
                 end;
                 
                 if m==4 % merge cluster with other cluster
