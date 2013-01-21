@@ -119,6 +119,10 @@ switch ftype
         % interpolated time points
         data.tsI = ts_interp(data.ts',interp_factor);
 
+        if max(abs(diff(data.ts)))>1
+            warning('>1s jump in timestamps, tsI interpolation likely corrupted!!!');
+        end;
+        
         % downsampled data, scaled to the proper range
         data.samples = double(downsample(data.samples,ds_factor));
         

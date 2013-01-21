@@ -18,7 +18,7 @@ end
 
 n_records = numel(timestamp);
 
-step_size = mean(diff(timestamp))./samples_per_record;
+step_size = mean(diff(timestamp(1:1000)))./samples_per_record;
 
 rate_matrix = ones(n_records,samples_per_record-1).*step_size;
 
