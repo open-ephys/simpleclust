@@ -18,6 +18,7 @@ spikes.waveforms_ts=mua.ts_spike;
 %outfilename=[spikes.sourcefile(1:end-4),'_clustered.mat'];
 outfilename=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_clustered.mat'];
 
+clear dir;
 d=dir(outfilename);
 if numel(d)>0
     button = questdlg(['overwrite   ',outfilename,'   ?'],'file exists already','Yes','No','Yes');

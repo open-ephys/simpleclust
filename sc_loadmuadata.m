@@ -464,7 +464,7 @@ if ~skipsetup
     features.randperm = randperm(numel(features.ts));
     
     
-    features.featureselects=[3 4];
+    features.featureselects=[2 3];
     
     features=sc_updateclusterimages(features,mua);
 end;
