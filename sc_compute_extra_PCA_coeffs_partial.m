@@ -21,7 +21,14 @@ D=zeros(1,size(features.data,2));
     features.data(end+1,:)=D;
     
 else
-    [coeffs,score]= princomp(mua.waveforms(visible,a:b)','econ');
+    
+    % whiten
+    D=mua.waveforms(visible,a:b)';
+    D=D-repmat(mean(D'),size(D,2),1)';
+    S=std(D'); S(S<0.1)=0.1;
+    D=D./repmat(S,size(D,2),1)';
+ 
+    [coeffs,score]= princomp(D,'econ');
     
     if size(coeffs,2)>4 % cut to 4
         coeffs=coeffs(:,1:4);
