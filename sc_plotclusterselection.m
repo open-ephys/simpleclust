@@ -1,5 +1,5 @@
 
-function plotclusterselection(features);
+function sc_plotclusterselection(features);
 
 
 for i=1:features.Nclusters
@@ -54,6 +54,9 @@ plot([0.075 0.075]-1+(0.2*(i)) +.02,[0 0.15]+1.02,'k','LineWidth',15,'color',.85
 text(-1+(0.2*(i)) +.1,1.04,'+new');
 plot([0 0]-1 +((i+1)*0.2),[1 1.2],'color',[.7 .7 .7]);
 
-text(-1+(0.2*(i)) +.3,1.16,'Simple Clust v0.4  jvoigts@mit.edu');
-text(-1+(0.2*(i)) +.3,1.06,features.muafile_justfile,'Interpreter','none');
+text(-1+(0.2*(i)) +.3,1.16,'Simple Clust v0.5     ','FontWeight','bold');
+text(-1+(0.2*(i)) +.65,1.16,'jvoigts@mit.edu ');
+
+text(-1+(0.2*(i)) +.3,1.09,features.muafilepath,'Interpreter','none');
+text(-1+(0.2*(i)) +.3,1.06,features.muafile_justfile,'Interpreter','none','color',[.0 .0 .0],'FontWeight','bold');
 

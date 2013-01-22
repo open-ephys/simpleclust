@@ -24,7 +24,8 @@ for i=1:features.Nclusters
         features=sc_updateclusterimages(features,mua);
     end;
 
-    stairs(linspace(0,psize,features.isioptions(1).nbins)+xo+1,(features.isiplots{i}/4)+yo-psize+1-(psize/2),'k','color',[.9 .9 1].*.6,'LineWidth',2);
+    stairs(linspace(0,psize,features.isioptions(1).nbins)+xo+1,(features.isiplots{i}.*0)+yo-psize+1.02-(psize/2),'k','color',[1 1 1].*.8,'LineWidth',2);
+    stairs(linspace(0,psize,features.isioptions(1).nbins)+xo+1,(features.isiplots{i}/4)+yo-psize+1.02-(psize/2),'k','color',[.9 .9 1].*.6,'LineWidth',2);
     
     %   text(xpos,ypos-psize-.1,'0');
     %   text(xpos+psize/2,ypos-psize-.1,'ms');
