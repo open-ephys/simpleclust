@@ -7,8 +7,7 @@ for i=1:features.Nclusters
     
     % precompute ISI hist.
     
-    features.isioptions(i).tmax = max(1,features.isioptions(1).tmax);
-    
+    features.isioptions(1).tmax = max(.5,features.isioptions(1).tmax);
     
     l=linspace(0,features.isioptions(1).tmax,features.isioptions(1).nbins);
     
@@ -16,13 +15,13 @@ for i=1:features.Nclusters
     
     dt= diff(features.ts(thisclust).*1000);
     dt(dt==0)=[];
-     psize=0.65;
-     
+    psize=0.65;
+    
     h=histc(dt,l);
     h=(h./max(h)).*psize.*.95;
     
     features.isiplots{i}=h;
-  
+    
     
 end;
 
