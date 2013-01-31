@@ -3,8 +3,12 @@
 body {
   padding:50px;
   font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color:#777;
+  color: #4D4D4D;
   font-weight:300;
+  background-image: url(../simpleclust_bg.png);
+  background-repeat: no-repeat;
+  background-position-x: 400px;
+  background-position-y: -60px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -98,7 +102,7 @@ img {
 header {
   width:270px;
   float:left;
-  position:fixed;
+  
 }
 
 header ul {
