@@ -3,11 +3,11 @@
 body {
   padding:50px;
   font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #4D4D4D;
+  color: #000;
   font-weight:300;
   background-image: url(../simpleclust_bg.png);
   background-repeat: no-repeat;
-  background-position-x: 400px;
+  background-position-x: 405px;
   background-position-y: -60px;
 }
 
