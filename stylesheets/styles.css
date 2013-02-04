@@ -98,8 +98,6 @@ img {
 header {
   width:270px;
   float:left;
-  
-header {
   position: absolute;
   background-image: url(../simpleclust_bg.png);
   background-position-y: -120px;
@@ -110,7 +108,6 @@ header {
   float:left;
   
   z-index: -1;
-}
   
 }
 
