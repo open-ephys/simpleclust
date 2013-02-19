@@ -12,16 +12,19 @@ for i=1:features.Nclusters
     l=linspace(0,features.isioptions(1).tmax,features.isioptions(1).nbins);
     
     thisclust=find(features.clusters==i);
-    
-    dt= diff(features.ts(thisclust).*1000);
-    dt(dt==0)=[];
-    psize=0.65;
-    
-    h=histc(dt,l);
-    h=(h./max(h)).*psize.*.95;
-    
-    features.isiplots{i}=h;
-    
+    if numel(thisclust)>1
+        
+        dt= diff(features.ts(thisclust).*1000);
+        dt(dt==0)=[];
+        psize=0.65;
+        
+        h=histc(dt,l);
+        h=(h./max(h)).*psize.*.95;
+        
+        features.isiplots{i}=h;
+    else
+        features.isiplots{i}=zeros(0,features.isioptions(1).nbins);
+    end;
     
 end;
 
