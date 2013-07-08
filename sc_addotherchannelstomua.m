@@ -17,14 +17,14 @@ for i=1:numel(features.otherchannelfiles)
     drawnow;
     
     
-    [features_tmp,mua_tmp]=sc_loadmuadata(fullfile(features.muafilepath,features.otherchannelfiles{i}),0);
-    mua.otherchannels{i}.ts=mua_tmp.ts;
+    [features_tmp,mua_tmp]=sc_loadmuadata(fullfile(features.muafilepath,features.otherchannelfiles{i}),0,[]);
+    mua.overlapchannels{i}.ts=mua_tmp.ts;
     
 end;
 
 % now compute 'overlap' feature
 
-N_compare=numel( mua.otherchannels); % how many otther channels are there
+N_compare=numel( mua.overlapchannels); % how many otther channels are there
 
 
 use_loop=0; % do loop method, or straight huge histograms?
@@ -85,7 +85,7 @@ if use_loop
                         otherid = [otherid; find( otherbins{j}==spikebins(i)+1 )];
                         otherid = [otherid; find( otherbins{j}==spikebins(i)-1 )];
                         
-                        if min(abs( mua.ts(i)- mua.otherchannels{j}.ts(otherid) )) < .2/1000; % chance timw window here, or even add penalty based on D_t?
+                        if min(abs( mua.ts(i)- mua.overlapchannels{j}.ts(otherid) )) < .2/1000; % chance timw window here, or even add penalty based on D_t?
                             Noverlap(i)=Noverlap(i)+1;
                         end;
                         
@@ -104,7 +104,9 @@ else % just use histograms, way faster
     N_used=0; % count how many were actually used
     
     h_this=sparse(zeros(numel(tbins), 1));
+    
     [h_this,this_bins]=histc(mua.ts ,tbins);
+      this_bins=max(1,this_bins); % hack
     h_this=conv(h_this,[.5  1 .5],'same'); % avoid edge effects
     
     % h_others=sparse(zeros(numel(tbins), numel(mua.otherchannels) ));
@@ -122,7 +124,7 @@ else % just use histograms, way faster
         drawnow;
         
         
-        h_other=histc(mua.otherchannels{j}.ts ,tbins);
+        h_other=histc(mua.overlapchannels{j}.ts ,tbins);
         if numel(h_other)>0
             ovr=(h_this .* h_other);
             Noverlap(1:end-1)=Noverlap(1:end-1)+  ovr(this_bins(1:end-1));
