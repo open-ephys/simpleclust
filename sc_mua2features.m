@@ -13,6 +13,13 @@ if size(D,2)>size(D,1)
     % simply padding D will probbaly fix this if you really want to sort something like this
 end;
 
+if numel(mua.ts)<size(mua.waveforms,1)
+    warning('fewer spikes than waveforms, truncating!');
+    mua.waveforms = mua.waveforms(1:numel(mua.ts),:);
+end;
+    
+
+
 %% get Wavelet coeffs
 
 
