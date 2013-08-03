@@ -83,13 +83,14 @@ s_opt = [];
 
 s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap
 s_opt.auto_overlap_dontask = 1; % dont ask if others should be loaded
-s_opt.auto_overlap_max = 6; %if >0, limits how many other channels are loaded
+s_opt.auto_overlap_max = 5; %if >0, limits how many other channels are loaded
 
 s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
 s_opt.auto_noise_trs = .5; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
 
 s_opt.auto_number = 1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data
 
+s_opt.invert= 1; % invert waveforms?
 
 %% init
 run = 1;
@@ -198,8 +199,8 @@ while run
     if ~dataloaded
         if (x<-1)&& (y>0.9) && (y<1) % batch (pre)process
             
-            [FileName,PathName,FilterIndex] = uigetfile({'*.wf;*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.wf','Waveform file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files to preprocess'],'MultiSelect','on');
-            
+            [FileName,PathName,FilterIndex] = uigetfile({'*.wf;*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*_extracted.mat', 'extracted matlab file';'*.wf','Waveform file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files for other channels (vs ch ',num2str(spikes.sourcechannel),')'],'MultiSelect','on');
+
             
             if FilterIndex(1)~=0
                 for b=1:numel(FileName)
