@@ -48,7 +48,7 @@ if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
     
     
     features.otherchannelfiles={otherfiles.name};
-    if numel(otherfiles) >0
+    if numel(otherfiles) >1
         [features,mua]=sc_addotherchannelstomua(features,mua);
     else
         disp('no other files to process for overlap feature');
@@ -86,7 +86,7 @@ else % select manually
     
     if strcmp(button,'Yes')
         features.loadmultiple=1;
-        [FileName,PathName,FilterIndex] = uigetfile({'*.wf;*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*.wf','Waveform file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files for other channels (vs ch ',num2str(spikes.sourcechannel),')'],'MultiSelect','on');
+        [FileName,PathName,FilterIndex] = uigetfile({'*.wf;*.nse;*.nst;*.ntt;','all base electrode file types';'*_simpleclust.mat', 'simpleclust file';'*.mat', 'matlab file';'*_extracted.mat', 'extracted matlab file';'*.wf','Waveform file';'*.nse' ,'neuralynx single electrode file'; '*.nst',  'neuralynx stereotrode file'; '*.ntt',  'neuralynx tetrode file'},['choose files for other channels (vs ch ',num2str(spikes.sourcechannel),')'],'MultiSelect','on');
 
         features.otherchannelfiles=FileName;
         
