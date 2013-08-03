@@ -23,10 +23,10 @@ for i=1:features.Nclusters
     catch
         features=sc_updateclusterimages(features,mua);
     end;
-
+if numel(features.isiplots{i})>1
     stairs(linspace(0,psize,features.isioptions(1).nbins)+xo+1,(features.isiplots{i}.*0)+yo-psize+1.02-(psize/2),'k','color',[1 1 1].*.8,'LineWidth',2);
     stairs(linspace(0,psize,features.isioptions(1).nbins)+xo+1,(features.isiplots{i}/4)+yo-psize+1.02-(psize/2),'k','color',[.9 .9 1].*.6,'LineWidth',2);
-    
+end;
     %   text(xpos,ypos-psize-.1,'0');
     %   text(xpos+psize/2,ypos-psize-.1,'ms');
     %   text(xpos+psize-0.1,ypos-psize-.1,num2str(features.isioptions(1).tmax));
