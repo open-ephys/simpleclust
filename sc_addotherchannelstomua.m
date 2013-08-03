@@ -2,6 +2,8 @@ function [features,mua]=sc_addotherchannelstomua(features,mua)
 % load multiple files and just kepe the spike times to use in a feature
 % that counts co-occurrence of spikes across channels
 
+ mua.otherchannels=[];
+ 
 for i=1:numel(features.otherchannelfiles)
     
     
@@ -99,6 +101,7 @@ if use_loop
 else % just use histograms, way faster
     
     tbins=[min(mua.ts):0.1/1000:max(mua.ts)]; % make .1ms +-1 ms bins (this will blow up for big files on small machines)
+    tbins=max(tbins,1);
     
     Noverlap=zeros(size(mua.ts));
     N_used=0; % count how many were actually used
@@ -107,6 +110,7 @@ else % just use histograms, way faster
     [h_this,this_bins]=histc(mua.ts ,tbins);
     h_this=conv(h_this,[.5  1 .5],'same'); % avoid edge effects
     
+    this_bins=max(this_bins,1);
     % h_others=sparse(zeros(numel(tbins), numel(mua.otherchannels) ));
     for j=1:numel(mua.otherchannels)
         
