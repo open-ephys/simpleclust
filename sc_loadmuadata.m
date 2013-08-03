@@ -71,6 +71,12 @@ switch muafile_ext
         else % file has a variable mua in it, probably jakobs own format
             if  exist('features', 'var') %marker for simple_clust output format
                 
+                if numel(mua.ts)<size(mua.waveforms,1)
+                    warning('fewer spikes than waveforms, truncating!');
+                    mua.waveforms = mua.waveforms(1:numel(mua.ts),:);
+                end;
+
+
                 % we just loaded previous simple_clust data
                 % in theory there should be nothing left to do here?
                 skipsetup=1;
@@ -97,11 +103,11 @@ switch muafile_ext
                     
                     mua.ts_spike=linspace(-.5,2.5,93); %  we do  31 samples at 30303Hz, so its a 1.056ms window
                     
-                    
-                    features=sc_mua2features(mua);
-                    sourcechannel=mua.sourcechannel;
-                    features.sourcechannel=sourcechannel;
-                    
+                    if dofeatures
+                        features=sc_mua2features(mua);
+                        sourcechannel=mua.sourcechannel;
+                        features.sourcechannel=sourcechannel;
+                    end;
                 elseif size(mua.waveforms,2)==4 %tetrode recording
                     
                     mua.ncontacts = 4;
@@ -111,10 +117,11 @@ switch muafile_ext
                     
                     mua.ts_spike=linspace(-.5,2.5,93); %  we do  31 samples at 30303Hz, so its a 1.056ms window
                     mua.ts_spike=linspace(0,4,size(mua.waveforms,2));
-                    
-                    features=sc_mua2features(mua);
-                    sourcechannel=mua.sourcechannel;
-                    features.sourcechannel=sourcechannel;
+                    if dofeatures
+                        features=sc_mua2features(mua);
+                        sourcechannel=mua.sourcechannel;
+                        features.sourcechannel=sourcechannel;
+                    end;
                 else
                     mua.ncontacts = 1;
                     
@@ -342,11 +349,11 @@ switch muafile_ext
                 features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
                 features.sourcechannel= str2num(features.chnumstr{1});
                 sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
-            else                
+            else
                 %do it automatically
                 [~,n,~]=fileparts(muafile);
                 disp('automatically detecting ch number for');
-                disp(muafile);                
+                disp(muafile);
                 
                 chstr = regexpi(n, '_Ch(\d)', 'tokens');
                 if isempty(chstr),
@@ -371,10 +378,10 @@ switch muafile_ext
         
         mua.Nspikes = LoadSpikeWF(muafile, [], 5);
         
-        %Load waveforms       
+        %Load waveforms
         [mua.ts, wv] = LoadSpikeWF(muafile, [1 mua.Nspikes], 4);
         
-        % concatenate all waveforms        
+        % concatenate all waveforms
         mua.ncontacts = size(wv,2);
         
         %Copy waveforms over
