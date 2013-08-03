@@ -1,7 +1,8 @@
 function  [px,py] =getpolygon(features,plotcolor);
 
 
-
+%manual polygon draw
+%{
 px=[];
 py=[];
 
@@ -19,7 +20,16 @@ while b~=3
     py(end+1)=y;
 end;
 
+%}
 
+%better: draw freehand outline
+
+        t= imfreehand(gca,'Closed' ,1);
+        t.setClosed(1);
+         r=t.getPosition;
+
+        px=r(:,1);py=r(:,2);
+        
 % remap from screen space to feature space
 
 
