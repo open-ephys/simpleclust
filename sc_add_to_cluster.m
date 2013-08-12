@@ -5,6 +5,7 @@ function features=add_to_cluster(features,i,featureselects)
 
 use=zeros(1,numel(features.ts));
 
+
 for j=1:features.Nclusters
     if features.clustervisible(j)
         incluster=find(features.clusters==j );

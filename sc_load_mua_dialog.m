@@ -1,7 +1,6 @@
 [features,mua]=sc_loadmuadata(features.muafile,1,s_opt);
 
 
-
 features.muafilepath =[PathName];
 
 if s_opt.batch
@@ -27,7 +26,7 @@ end;
 if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
     
     features.loadmultiple=1;
-    otherfiles=[ dir([PathName,'*.ntt']) ;dir([PathName,'*.nst']) ;dir([PathName,'*.nse']) ;dir([PathName,'*_extracted.mat'])];
+    otherfiles=[ dir([PathName,'*.ntt']) ;dir([PathName,'*.nst']) ;dir([PathName,'*.nse']) ;dir([PathName,'*_extracted.mat']) ;dir([PathName,'*.spikes']) ];
     
     cc=1;j=1;
     

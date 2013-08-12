@@ -7,6 +7,51 @@ muafile
 muafile_ext = muafile_ext(2:end);
 
 switch muafile_ext
+    
+    case 'spikes' % open ephys data format
+        [data, timestamps, info] = load_open_ephys_data(muafile);
+        
+        features.chnumstr = info.header.electrode;
+        features.sourcechannel= str2num(info.header.electrode(end-1:end));
+        sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+        
+        
+        mua.Nspikes = numel(timestamps);
+        mua.ts=timestamps./info.header.sampleRate;
+        
+        [pathstr, name, ext] = fileparts(muafile);
+        mua.fname=[name,ext];
+        
+        
+        mua.opt=[];
+        mua.header=info.header;
+        
+        mua.ncontacts = info.header.num_channels;
+        
+        mua.val2volt=1; % alreaddy done in load script
+        
+        % flatten waveforms for display
+        
+        mua.waveforms=reshape(data,size(data,1),size(data,2)*size(data,3),1);
+        
+        
+        mua.ts_spike=linspace(-.5,3.5,40* mua.ncontacts); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
+        
+        
+        if dofeatures
+            features=sc_mua2features(mua);
+            features.sourcechannel=sourcechannel;
+        end;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
     case 'mat'
         load(muafile);
         
