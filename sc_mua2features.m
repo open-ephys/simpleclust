@@ -52,6 +52,7 @@ daspect([1 1 1]);set(gca,'XTick',[]); set(gca,'YTick',[]);
 drawnow;
 
 
+mua.waveforms(isinf(mua.waveforms(:)))=0; % open ephys seems to return inf sometimes??
 
 [coeffs,score]= princomp((mua.waveforms)','econ');
 

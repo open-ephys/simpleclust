@@ -17,8 +17,9 @@ switch muafile_ext
         
         
         mua.Nspikes = numel(timestamps);
-        mua.ts=timestamps;%./info.header.sampleRate;
-        
+
+       % mua.ts=timestamps./info.header.sampleRate;
+         mua.ts=timestamps;
         [pathstr, name, ext] = fileparts(muafile);
         mua.fname=[name,ext];
         
