@@ -81,6 +81,8 @@ X - add template matching to selected cluster?
 
 s_opt = []; 
 
+s_opt.mex_intersect=1; % use mex fn for poly intersect (much faster)
+
 s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap
 s_opt.auto_overlap_dontask = 1; % dont ask if others should be loaded
 s_opt.auto_overlap_max = 5; %if >0, limits how many other channels are loaded
@@ -106,6 +108,12 @@ debuginput = [0 0 0];
 
 if numel(strfind(path,'read_cheetah')) ==0
     error('make sure the read_cheetah dir is in your matlab path');
+end;
+
+if s_opt.mex_intersect
+    if numel(strfind(path,'InPolygon-MEX')) ==0
+    error('make sure the InPolygon-MEX dir is in your matlab path, or disable s_opt.mex_intersect');
+end;
 end;
 
 %% main loop
@@ -250,7 +258,7 @@ while run
         
         features=sc_parse_feature_selection(x,y,features);
         
-        features=sc_parse_custerselection(features,x,y,mua);
+        features=sc_parse_custerselection(features,x,y,mua,s_opt);
         
         features=sc_parse_clickonwaveforms(x,y,features,mua);
         

@@ -1,4 +1,4 @@
-function features=add_to_cluster_from_any(features,i,featureselects)
+function features=add_to_cluster_from_any(features,i,s_opt,featureselects)
 
 
 [px,py] =sc_getpolygon(features,features.colors(i,:));
@@ -21,7 +21,13 @@ notassigned=find(use); % just select from all
 dX=features.data(features.featureselects(1),notassigned);
 dY=features.data(features.featureselects(2),notassigned);
 
-in = inpolygon(dX,dY,px,py);
+if ~s_opt.mex_intersect
+    in = inpolygon(dX,dY,px,py); % slow matlab method
+else
+    % WAY faster Fast InPolygon detection MEX by Guillaume JACQUENOT
+    % from http://www.mathworks.com/matlabcentral/fileexchange/20754-fast-inpolygon-detection-mex
+    in = InPolygon(dX,dY,px,py);
+end;
 
 features.clusters_undo=features.clusters;
 features.clusters(notassigned(in))=i;

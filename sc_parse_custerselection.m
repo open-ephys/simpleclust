@@ -1,4 +1,4 @@
-function features=parse_custerselection(features,x,y,mua)
+function features=parse_custerselection(features,x,y,mua,s_opt)
 
 
 selected_cluster=0;
@@ -38,27 +38,27 @@ if (x>-1) && (y> 1)
                     if y >  1.05 % +
                         
                         text(-1+(0.2*(i-1)) +.04 ,1.08,'+','color',[1 0 0]);
-                        features=sc_add_to_cluster(features,i);
+                        features=sc_add_to_cluster(features,i,s_opt);
                         
                     else
                         %    disp('++');
                         
                         text(-1+(0.2*(i-1)) +.04 ,1.02,'++','color',[1 0 0]);
                         
-                        features=sc_add_to_cluster_from_any(features,i);
+                        features=sc_add_to_cluster_from_any(features,i,s_opt);
                     end;
                     
                 else
                     
                     if y >  1.05 % *
                         text(-1+(0.2*(i-1)) +.14 ,1.06,'*','color',[1 0 0]);
-                        features=sc_intersect_cluster(features,i);
+                        features=sc_intersect_cluster(features,i,s_opt);
                     else
                         % disp('-');
                         
                         text(-1+(0.2*(i-1)) +.14 ,1.02,'-','color',[1 0 0]);
                         
-                        features=sc_remove_from_cluster(features,i);
+                        features=sc_remove_from_cluster(features,i,s_opt);
                     end;
                 end;
                 
