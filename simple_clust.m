@@ -39,6 +39,9 @@
 %{
 features 2do:
 
+- add rescale all features button
+- add inverted ++ to noise cluster operations
+- add (r) shortcut to recsale
 X - fix ISI display
 X- loading of simpleclust state with clusters etc intact
 X- 'remove features' button (small x) on left
