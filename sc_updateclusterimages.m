@@ -32,7 +32,7 @@ end;
 
 % now update actual cluster images
 
-features.clusterimages=zeros(features.imagesize,features.imagesize,12);
+%features.clusterimages=zeros(features.imagesize,features.imagesize,12);
 
 usefastmethod =1;
 
@@ -71,7 +71,6 @@ if usefastmethod
         end;
     end;
     
-    features.clusterimages=zeros(features.imagesize,features.imagesize,features.Nclusters);
     
 end;
 
@@ -82,7 +81,20 @@ npoints=size(mua.waveforms,2);
 
 ll=(linspace(-.1,.1,features.imagesize).*4.8)./features.waveformscale;
 
-for i=1:features.Nclusters
+% if the last manipulation was a +,-,or *, then the only clusters that are
+% affected are NULl and the slected cluster, so we can restrict the image
+% upates to these two clusters and save a LOT of time:
+if features.last_op_was_from_any
+    clusters_to_update = 1:features.Nclusters;
+else
+    clusters_to_update =[1 features.editedcluster];
+end;
+
+
+for i=clusters_to_update
+    
+    
+    features.clusterimages(:,:,i)=zeros(features.imagesize,features.imagesize);
     
     inthiscluster=find(features.clusters==i);
     
@@ -105,7 +117,7 @@ for i=1:features.Nclusters
                 g=g';
             end;
             if numel(inthiscluster) >0
-                features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster, k ) , ll ) + g';
+                features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster(1:2:end), k ) , ll ) + g';
             else
                 features.clusterimages(:,x,i) =  g;
             end;
