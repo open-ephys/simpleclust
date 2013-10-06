@@ -31,3 +31,8 @@ end;
 
 features.clusters_undo=features.clusters;
 features.clusters(notassigned(in))=i;
+
+% if we're adding from all to noise, also zoom in to fit all visible
+if i==2
+     features=sc_zoom_all(features);
+end;
