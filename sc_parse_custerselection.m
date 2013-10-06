@@ -83,7 +83,7 @@ if (x>-1) && (y> 1)
         
         text(-1+(0.2*(i)) +.1,1.04,'+new','color',[1 0 0])
         drawnow;
-        features.editedcluster=i;
+        features.editedcluster=i+1;
         features=sc_add_to_cluster(features,features.Nclusters,s_opt);
         
         % features=updateclusterimages(features,mua);

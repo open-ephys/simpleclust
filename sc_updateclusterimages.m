@@ -31,8 +31,9 @@ end;
 
 
 % now update actual cluster images
-
-%features.clusterimages=zeros(features.imagesize,features.imagesize,12);
+if size(features.clusterimages,3) < 12
+    features.clusterimages=zeros(features.imagesize,features.imagesize,12);
+end;
 
 usefastmethod =1;
 
