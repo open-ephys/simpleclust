@@ -18,6 +18,7 @@ drawnow;
 
     if b==3
         features.zoomrange=features.range;
+        features.updatezoom=1;
     end;
     
     if b==1;
@@ -45,5 +46,6 @@ drawnow;
         features.zoomrange(features.featureselects(1),1)= min(ys);
         features.zoomrange(features.featureselects(1),2)= max(ys);
         
+        features.updatezoom=1;
     end;
 end;

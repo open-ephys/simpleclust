@@ -19,3 +19,5 @@ for i=features.featureselects %:size(features.data,1)
     
     
 end;
+
+features.updatezoom=1;

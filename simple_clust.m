@@ -85,10 +85,10 @@ s_opt.mex_intersect=1; % use mex fn for poly intersect (much faster)
 
 s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap
 s_opt.auto_overlap_dontask = 1; % dont ask if others should be loaded
-s_opt.auto_overlap_max = 5; %if >0, limits how many other channels are loaded
+s_opt.auto_overlap_max = 1; %if >0, limits how many other channels are loaded
 
 s_opt.auto_noise = 1; % automatically assign channels with high overlap into noise cluster
-s_opt.auto_noise_trs = .75; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
+s_opt.auto_noise_trs = 2; %proportion of channels a spike must co-occur in within .2ms in order to be classified noise
 
 s_opt.auto_number = 1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data
 
@@ -98,6 +98,8 @@ s_opt.invert= 1; % invert waveforms?
 run = 1;
 dataloaded = 0;
 s_opt.batch = 0;
+
+features.updatezoom=1; % so that new features are check3d for zoom state and visibility, set 1 after each zoom operation or new feature
 
 global debugstate;
 debugstate = 0; % 0: do nothing, 1: go trough following states

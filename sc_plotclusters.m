@@ -17,30 +17,40 @@ for i=1:features.Nclusters
     end;
 end;
 
-margin=0.1;
-for i=1:2%size(features.data,1) % scale only the features we're looking at
+
+% this is needed only when a feature was changed
+if ~exist('features.updatezoom')
+    features.updatezoom=1;
+end;
+if features.updatezoom
+    features.updatezoom=0;
     
-    x=features.data(features.featureselects(i),:);
+    margin=0.1;
+    for i=1:2%size(features.data,1) % scale only the features we're looking at
+        
+        x=features.data(features.featureselects(i),:);
+        
+        %x=x-min(x(find(use))); x=x./max(x(find(use))); x=x*(2-margin*2); x=x-(1-margin);
+        %features.data_scaled(i,:)=x;
+        
+        % scale to min-max
+        %features.data_scaled(features.featureselects(i),:)=sc_remap (features.data(features.featureselects(i),:),min(x(find(use))),max(x(find(use))) ,-.9,.9);
+        
+        % scale to zoom boundaries
+        features.data_scaled(features.featureselects(i),:)=sc_remap(features.data(features.featureselects(i),:), features.zoomrange(features.featureselects(i),1) , features.zoomrange(features.featureselects(i),2) ,-.9,.9);
+        
+        
+        
+    end;
     
-    %x=x-min(x(find(use))); x=x./max(x(find(use))); x=x*(2-margin*2); x=x-(1-margin);
-    %features.data_scaled(i,:)=x;
-    
-    % scale to min-max
-    %features.data_scaled(features.featureselects(i),:)=sc_remap (features.data(features.featureselects(i),:),min(x(find(use))),max(x(find(use))) ,-.9,.9);
-    
-    % scale to zoom boundaries
-    features.data_scaled(features.featureselects(i),:)=sc_remap(features.data(features.featureselects(i),:), features.zoomrange(features.featureselects(i),1) , features.zoomrange(features.featureselects(i),2) ,-.9,.9);
-    
+    % hide out of bounds points
+    features.zoomvisible = ( features.data(features.featureselects(1),:) <= features.zoomrange(features.featureselects(1),2) ).* ...
+        ( features.data(features.featureselects(1),:) >= features.zoomrange(features.featureselects(1),1) ).* ...
+        ( features.data(features.featureselects(2),:) <= features.zoomrange(features.featureselects(2),2) ).* ...
+        ( features.data(features.featureselects(2),:) >= features.zoomrange(features.featureselects(2),1) );
     
     
 end;
-
-% hide out of bounds points
-features.zoomvisible = ( features.data(features.featureselects(1),:) <= features.zoomrange(features.featureselects(1),2) ).* ...
-    ( features.data(features.featureselects(1),:) >= features.zoomrange(features.featureselects(1),1) ).* ...
-    ( features.data(features.featureselects(2),:) <= features.zoomrange(features.featureselects(2),2) ).* ...
-    ( features.data(features.featureselects(2),:) >= features.zoomrange(features.featureselects(2),1) );
-
 
 % indicate if some were cut off
 % right
@@ -79,10 +89,10 @@ end;
 
 %ugly bug fix - figure out where this error comes from!
 if size(features.timevisible,1)>size(features.timevisible,2)
-features.timevisible=features.timevisible';
+    features.timevisible=features.timevisible';
 end;
 if size(features.ts,1)>size(features.ts,2)
-features.ts=features.ts';
+    features.ts=features.ts';
 end;
 
 
