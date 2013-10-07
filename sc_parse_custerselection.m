@@ -9,7 +9,7 @@ if (x>-1) && (y> 1)
     
     
     for i=1:features.Nclusters
-        
+        features.editedcluster=i;
         
         
         
@@ -56,7 +56,7 @@ if (x>-1) && (y> 1)
                     
                     if y >  1.05 % *
                         text(-1+(0.2*(i-1)) +.14 ,1.06,'*','color',[1 0 0]);
-                           features.editedcluster=i;
+                        features.editedcluster=i;
                         features=sc_intersect_cluster(features,i,s_opt);
                     else
                         % disp('-');
