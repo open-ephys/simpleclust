@@ -85,6 +85,10 @@ ll=(linspace(-.1,.1,features.imagesize).*4.8)./features.waveformscale;
 % if the last manipulation was a +,-,or *, then the only clusters that are
 % affected are NULl and the slected cluster, so we can restrict the image
 % upates to these two clusters and save a LOT of time:
+if ~exist('features.last_op_was_from_any')
+    features.last_op_was_from_any=1;
+end;
+
 if features.last_op_was_from_any
     clusters_to_update = 1:features.Nclusters;
 else
