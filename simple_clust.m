@@ -208,6 +208,10 @@ while run
     
     [x,y,b] = sc_ginput(1);
     
+    % fixes occasional crashes (when clicking on window borders?)
+    if numel(x)==0
+        x=0; y=0; b=0;
+    end;
     
     if ~dataloaded
         if (x<-1)&& (y>0.9) && (y<1) % batch (pre)process
