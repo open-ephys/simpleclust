@@ -29,16 +29,29 @@ end;
 if strcmp(button,'Yes')
     
     
-        save_text_h = text(-.5,0,'saving... ', 'BackgroundColor',[.7 .9 .7]);
-        drawnow;
-        
+    save_text_h = text(-.5,0,'saving... ', 'BackgroundColor',[.7 .9 .7]);
+    drawnow;
+    
+    x=whos('spikes');
+    s=round(x.bytes./1024^2); % size in MB
+    disp(['saving spikes - ', num2str(s),' MB...']);
     
     save(outfilename,'spikes','-v7.3');
     
     % save simpleclust state so we can just load it again
     % if needed
+    
+    x=whos('mua');
+    s=round(x.bytes./1024^2); % size in MB
+    x=whos('features');
+    s=s+round(x.bytes./1024^2); % size in MB
+    disp(['saving mua input&features  - ', num2str(s),' MB...']);
+    
     outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
     save(outfilename_sc,'features','mua','-v7.3');
+    
+    
+    
     
     disp(['saved to ',outfilename,' output for using in science']);
     disp(['saved to ',outfilename_sc,' can be loaded with simpleclust']);
