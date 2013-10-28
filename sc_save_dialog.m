@@ -32,6 +32,20 @@ if strcmp(button,'Yes')
     save_text_h = text(-.5,0,'saving... ', 'BackgroundColor',[.7 .9 .7]);
     drawnow;
     
+    if ~isfield(s_opt,'dont_save_noise') % bcwrds comp.
+        s_opt.dont_save_noise=0;
+    end;
+    
+    if s_opt.dont_save_noise % delete noise from science output file, stop the ram from blowing up too much
+        fprintf('discarding %d%% of spikes that were marked noise\n',round(mean(spikes.cluster_is==2)*100));
+        ff=find(spikes.cluster_is==2);
+        spikes.ts(ff)=[];
+        spikes.cluster_is(ff)=[];
+        spikes.waveforms(ff,:)=[];
+        spikes.Nspikes=numel(spikes.ts);
+    end;
+    
+    
     x=whos('spikes');
     s=round(x.bytes./1024^2); % size in MB
     disp(['saving spikes - ', num2str(s),' MB...']);
@@ -49,8 +63,6 @@ if strcmp(button,'Yes')
     
     outfilename_sc=[features.muafilepath,'ch',num2str(spikes.sourcechannel),'_simpleclust.mat'];
     save(outfilename_sc,'features','mua','-v7.3');
-    
-    
     
     
     disp(['saved to ',outfilename,' output for using in science']);
