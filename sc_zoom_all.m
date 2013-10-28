@@ -14,9 +14,9 @@ end;
 for i=features.featureselects %:size(features.data,1)
     
     x=features.data(i,find(use));
-    
+    if numel(x)>0
     features.zoomrange(i,[1 2])=[min(x),max(x)];
-    
+    end;
     
 end;
 
