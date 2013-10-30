@@ -4,7 +4,7 @@ pos=[-1  -.8 -.6 -.5 -.4 -.3 -.2 0.0 0.1 0.4 0.5 0.8 1 1.2 1.4 1.7 1.9];
 pos(6:end)=pos(6:end)+.2;
 
 plot([-1.3 3.3] ,[-1 -1],'color',[.7 .7 .7]);
-    
+
 if nargout==0 % plot
     
     i=1;
@@ -109,13 +109,13 @@ if nargout==0 % plot
     
     text(pos(i)+0.02,-1.05,['compare']);
     
-        i=15; % isi feature
+    i=15; % isi feature
     plot([1 1].*pos(i) ,[-1.1 -1],'color',[.7 .7 .7]);
     plot([1 1].*pos(i+1) ,[-1.1 -1],'color',[.7 .7 .7]);
     
     text(pos(i)+0.02,-1.05,['+ISI feature']);
-
-            i=16; % sample specific pca feature
+    
+    i=16; % sample specific pca feature
     plot([1 1].*pos(i) ,[-1.1 -1],'color',[.7 .7 .7]);
     plot([1 1].*pos(i+1) ,[-1.1 -1],'color',[.7 .7 .7]);
     
@@ -174,7 +174,7 @@ else % evaluate x,y
     
     i=5; % ISI +
     if b==3  % on right click open up menu for manual entry
-        if   ((x>pos(i)) && (x<pos(i+1)) && (features.selected >0)) || ( (x>pos(i)) && (x<pos(i+1)) && (features.selected >0))
+        if   ((x>pos(i)) && (x<pos(i+1))) || ( (x>pos(i)) && (x<pos(i+1)))
             prompt={'Enter max ISI lag (ms)'};
             name='ISI lag';
             numlines=1;
@@ -190,20 +190,23 @@ else % evaluate x,y
             end;
             
         end;
+        features=sc_updateclusterimages(features,mua);
     else % otherwise do +/-
         
-        if (x>pos(i)) && (x<pos(i+1)) && (features.selected >0)
+        if (x>pos(i)) && (x<pos(i+1))
             features.isioptions(1).tmax=features.isioptions(1).tmax+c;
             
         end;
         
         i=6; % ISI -
-        if (x>pos(i)) && (x<pos(i+1)) && (features.selected >0)
+        if (x>pos(i)) && (x<pos(i+1))
             
             
             features.isioptions(1).tmax=max(1,features.isioptions(1).tmax-c);
             
         end;
+        features=sc_updateclusterimages(features,mua);
+        
     end;
     %  end;
     
@@ -261,26 +264,26 @@ else % evaluate x,y
     
     i=12; % rescaling
     
-    if (x>pos(i)) && (x<pos(i+1))
+    if ((x>pos(i)) && (x<pos(i+1))) || (b==114) % 'r' hotkey
         features=sc_zoom_all(features);
     end;
     %
     
     i=13; % undo
     if (x>pos(i)) && (x<pos(i+1))
-      features.clusters=features.clusters_undo;
-    features=sc_updateclusterimages(features,mua);
-      
+        features.clusters=features.clusters_undo;
+        features=sc_updateclusterimages(features,mua);
+        
     end;
     
     
     i=14; % compare clusters
     if (x>pos(i)) && (x<pos(i+1))
-      sc_compare_features(features,mua);
+        sc_compare_features(features,mua);
     end;
     
     
-        i=15; % compute isi feature
+    i=15; % compute isi feature
     if (x>pos(i)) && (x<pos(i+1))
         
         text(-.5,0,'computing additional ISI features, using only visible spikes... ', 'BackgroundColor',[.7 .9 .7]);
