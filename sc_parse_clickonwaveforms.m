@@ -148,15 +148,7 @@ for i=1:features.Nclusters
                 if m==3 % add feature based on regression on waveforms
                     
                     visible = find(ismember(features.clusters, find(features.clustervisible)));
-                    
-                    % balance training set a bit - not needed
-                    %{
-                    targets=(features.clusters(visible)'==i);
-                    if mean(targets)<.4 % if less than 40% of these are positive examples
-                        [~,ii]=sort(targets);
-                        visible(ii(sum(targets*2):end))=0; % set examples invisible until half of the visible ones are positive examples
-                    end;
-                    %}
+       
                     
                     visible=logical(visible);
                     
@@ -165,8 +157,7 @@ for i=1:features.Nclusters
                     
                     b=regress(fy,fx);
                     
-                    fx_all=mua.waveforms; % do prediction on all, why not
-                    feat=fx_all*b;
+                    feat=fx_all*b;  % do prediction on all, why not
                     
                     features.data(end+1,:)= feat';
                     
