@@ -148,16 +148,19 @@ for i=1:features.Nclusters
                 if m==3 % add feature based on regression on waveforms
                     
                     visible = find(ismember(features.clusters, find(features.clustervisible)));
-       
+                    
+                    Nmaxregress=100000;
+                    while numel(visible)>Nmaxregress
+                        visible=visible(1:2:end);
+                    end;
                     
                     visible=logical(visible);
                     
-                    fx=mua.waveforms(visible,:); % only run on visible ones
-                    fy=(features.clusters(visible)'==i);
                     
-                    b=regress(fy,fx);
+                    fy=(features.clusters(visible)'==i); % only run on visible ones
+                    b=regress(fy,mua.waveforms(visible,:)); 
+                    feat=mua.waveforms*b;  % do prediction on all, why not
                     
-                    feat=fx_all*b;  % do prediction on all, why not
                     
                     features.data(end+1,:)= feat';
                     
