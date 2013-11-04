@@ -166,10 +166,12 @@ for i=1:features.Nclusters
                     
                     features.name{size(features.data,1)}=['regr_{in ',num2str(i),'}'];
                     
-                    features=sc_scale_features(features);
+                    %features=sc_scale_features(features);
                     
                     % select that feature
                     features.featureselects(2)=size(features.data,1);
+                    
+                    features=sc_zoom_all(features);
                     
                 end;
                 
