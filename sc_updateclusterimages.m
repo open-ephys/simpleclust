@@ -1,4 +1,4 @@
-function features=sc_updateclusterimages(features,mua);
+function features=sc_updateclusterimages(features,mua,s_opt);
 
 
 
@@ -103,67 +103,41 @@ for i=clusters_to_update
     
     inthiscluster=find(features.clusters==i);
     
+    if numel(inthiscluster)==1
+        g=g';
+    end;
     
-    if usefastmethod % fast, not as pretty
+    % only use some of the waveforms for very large clusters, tweak the
+    % numbers, its just a guess for now
+    if numel(inthiscluster) > 50000
+        ds_factor = s_opt.skipevery_wf_display;
         
-        grid=zeros(size(ll)); grid(round(end/2))=1;
+    elseif numel(inthiscluster) > 5000
+        ds_factor  = ceil(s_opt.skipevery_wf_display/2);
         
-        for k=1:features.imagesize % go trough image instead of waveform points, for speed and image quality
-            x = k;
-            %features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster, round(sc_remap(k,1,features.imagesize,1,size(mua.waveforms,2)))  ) , ll*6 );
-            
-            if mod(k,6)<3
-                g=grid;
-            else
-                g=grid.*0;
-            end;
-            
-            if numel(inthiscluster)==1
-                g=g';
-            end;
-            if numel(inthiscluster) >0
-                features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster(1:2:end), k ) , ll ) + g';
-            else
-                features.clusterimages(:,x,i) =  g;
-            end;
-            
-        end;
+    else
+        ds_factor  = 1;
         
-    else % old, slow method
+    end;
+    
+    
+    for k=1:features.imagesize % go trough image instead of waveform points, for speed and image quality
+        x = k;
+        %features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster, round(sc_remap(k,1,features.imagesize,1,size(mua.waveforms,2)))  ) , ll*6 );
         
-        for j=1:numel(inthiscluster)
-            
-            lastx=0; % avoid drawing the same line twice
-            
-            for k=2:npoints
-                
-                
-                xa=  (((k-1)/npoints)*features.imagesize);
-                ya=  ( mua.waveforms(inthiscluster(j),k-1) );
-                
-                xb=  ((k/npoints)*features.imagesize);
-                yb=  ( mua.waveforms(inthiscluster(j),k) );
-                
-                
-                steps=3;
-                for ii=1:steps
-                    
-                    m=(ii-1)./steps;
-                    x=floor((1-m)*xa + m*xb);
-                    y=floor(( (1-m)*ya + m*yb) *features.imagesize *features.waveformscale) +round(features.imagesize/2);
-                    
-                    
-                    if (x>0) && (y>0) && (x<=features.imagesize) && (y<=features.imagesize)&& (x~=lastx)
-                        
-                        features.clusterimages(y,x,i)=features.clusterimages(y,x,i)+1;
-                        lastx=x;
-                    end;
-                    
-                end;
-                
-                
-            end;
+
+        
+        if numel(inthiscluster) >0
+            features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster(1:ds_factor:end), k ) , ll ) ;
+        else
+            features.clusterimages(:,x,i) =  g;
         end;
         
     end;
+    
+    
 end;
+
+
+
+

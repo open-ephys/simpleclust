@@ -128,7 +128,6 @@ else % evaluate x,y
         
         button = questdlg('compute wavelet feature? this will take a while.','compute wavelets?','Yes','No','Yes');
         
-        
         if strcmp(button,'Yes')
             
             text(-.5,0,'computing additional wavelet features for visible spikes... ', 'BackgroundColor',[.7 .9 .7]);
@@ -154,13 +153,14 @@ else % evaluate x,y
     if (x>pos(i)) && (x<pos(i+1))
         features.waveformscale=features.waveformscale.*1.1;
         features=sc_updateclusterimages(features,mua);
+        features=sc_updateclusterimages(features,mua,s_opt);
     end;
     
     i=4; % waveforms -
     if (x>pos(i)) && (x<pos(i+1))
         features.waveformscale=features.waveformscale.*.9;
         features=sc_updateclusterimages(features,mua);
-        
+        features=sc_updateclusterimages(features,mua,s_opt);
     end;
     
     % if features.selected>0
@@ -205,7 +205,8 @@ else % evaluate x,y
             features.isioptions(1).tmax=max(1,features.isioptions(1).tmax-c);
             
         end;
-        features=sc_updateclusterimages(features,mua);
+        
+        % features=sc_updateclusterimages(features,mua,s_opt);
         
     end;
     %  end;

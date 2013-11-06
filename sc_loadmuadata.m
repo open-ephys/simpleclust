@@ -44,11 +44,7 @@ switch muafile_ext
             features.sourcechannel=sourcechannel;
         end;
         
-        
-        
-        
-        
-        
+
         
         
         
@@ -463,6 +459,11 @@ if ~skipsetup
     features.clustervisible=ones(1,12);
     
     
+    if ~isfield(s_opt,'skipevery_wf_display') % bkwrds comp.
+     s_opt.skipevery_wf_display=8;
+    end;
+    
+    
     %features.clusters(1:100)=2;
     features.labelcategories = {' ','noise','neg','unit','unit_{FS}','unit_{RS}','unit_{huge}','mua big','mua wide','mua thin','mua small','negative','artefact',};
     
@@ -510,8 +511,6 @@ if ~skipsetup
     % laod icons
     %features.eye_icon_o=imread('eye.png');
     %features.eye_icon_x=imread('eye_closed.png');
-    
-    
     
     features.timevisible=ones(1,numel(features.ts));
     features.randperm = randperm(numel(features.ts));

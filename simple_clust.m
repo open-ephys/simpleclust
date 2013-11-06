@@ -76,6 +76,8 @@ X - make add function take spikes only from visible clusters
  - save selected color for plotting in later analysis?
 X - add template matching to selected cluster?
 - auto-realigning of waveforms to interpolated peaks or even some more robust kernel thing
+- add feature to permanently delete cluster
+- add thinning feature for mua etc that reduces stochastically till some max rate is hit
 
 %}
 
@@ -97,6 +99,8 @@ s_opt.auto_noise_trs = 2; %proportion of channels a spike must co-occur in withi
 s_opt.auto_number = 1; % if set to 1, simpleclust will assume that there is ONLY ONE number in the MUA filenames and use is to designate the source channel for the resulting data
 
 s_opt.invert= 1; % invert waveforms?
+
+s_opt.skipevery_wf_display = 16; % skip every Nth waveform in the waveform display - this only sets an upper bound! smaller clusters will not be affected by this.
 
 %% init
 run = 1;

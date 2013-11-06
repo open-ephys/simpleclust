@@ -91,7 +91,7 @@ if (x>-1) && (y> 1)
     end;
     
     
-    features=sc_updateclusterimages(features,mua);
+    features=sc_updateclusterimages(features,mua,s_opt);
 end;
 
 
