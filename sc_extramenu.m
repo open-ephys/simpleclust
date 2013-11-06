@@ -152,14 +152,12 @@ else % evaluate x,y
     i=3; % waveforms +
     if (x>pos(i)) && (x<pos(i+1))
         features.waveformscale=features.waveformscale.*1.1;
-        features=sc_updateclusterimages(features,mua);
         features=sc_updateclusterimages(features,mua,s_opt);
     end;
     
     i=4; % waveforms -
     if (x>pos(i)) && (x<pos(i+1))
         features.waveformscale=features.waveformscale.*.9;
-        features=sc_updateclusterimages(features,mua);
         features=sc_updateclusterimages(features,mua,s_opt);
     end;
     
@@ -188,9 +186,8 @@ else % evaluate x,y
             if numel( features.isioptions(1).tmax)==0
                 features.isioptions(1).tmax=10;
             end;
-            
+             features=sc_updateclusterimages(features,mua,s_opt);
         end;
-        features=sc_updateclusterimages(features,mua);
     else % otherwise do +/-
         
         if (x>pos(i)) && (x<pos(i+1))
@@ -273,7 +270,7 @@ else % evaluate x,y
     i=13; % undo
     if (x>pos(i)) && (x<pos(i+1))
         features.clusters=features.clusters_undo;
-        features=sc_updateclusterimages(features,mua);
+        features=sc_updateclusterimages(features,mua,s_opt);
         
     end;
     
