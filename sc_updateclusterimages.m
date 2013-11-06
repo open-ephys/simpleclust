@@ -130,7 +130,7 @@ for i=clusters_to_update
         if numel(inthiscluster) >0
             features.clusterimages(:,x,i) = histc( features.waveforms_hi(inthiscluster(1:ds_factor:end), k ) , ll ) ;
         else
-            features.clusterimages(:,x,i) =  g;
+            features.clusterimages(:,x,i) =  1;
         end;
         
     end;
