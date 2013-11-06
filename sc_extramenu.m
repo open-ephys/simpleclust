@@ -1,4 +1,4 @@
-function varargout=extramenu(features,mua,x,y,b)
+function varargout=extramenu(features,mua,x,y,b,s_opt)
 
 pos=[-1  -.8 -.6 -.5 -.4 -.3 -.2 0.0 0.1 0.4 0.5 0.8 1 1.2 1.4 1.7 1.9];
 pos(6:end)=pos(6:end)+.2;

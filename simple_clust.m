@@ -282,7 +282,7 @@ while run
         
         
         if y<-1 && y>-1.1
-            features=  sc_extramenu(features,mua,x,y,b);
+            features=  sc_extramenu(features,mua,x,y,b,s_opt);
         end;
         
         if (b==3) && (abs(x)<1) && (abs(y)<1)
