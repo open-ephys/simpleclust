@@ -65,8 +65,9 @@ if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
             
             ii= features.data(fn(1),:)>s_opt.auto_noise_trs;
             features.clusters(ii)=2; % assign
+            features=sc_updateclusterimages(features,mua,s_opt);
         end;
-        features=sc_updateclusterimages(features,mua);
+        
         
     end;
     
