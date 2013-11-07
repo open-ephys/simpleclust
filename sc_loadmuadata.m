@@ -460,7 +460,7 @@ if ~skipsetup
     
     
     if ~isfield(s_opt,'skipevery_wf_display') % bkwrds comp.
-     s_opt.skipevery_wf_display=8;
+     s_opt.skipevery_wf_display=8; % if it's not specified, use a pretty conservative number so that things look the same
     end;
     
     
@@ -518,7 +518,7 @@ if ~skipsetup
     
     features.featureselects=[2 3];
     
-    features=sc_updateclusterimages(features,mua);
+    features=sc_updateclusterimages(features,mua, s_opt);
 end;
 
 run=1;

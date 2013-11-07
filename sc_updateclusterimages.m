@@ -71,8 +71,6 @@ if usefastmethod
             features.waveforms_hi(i,:) = interp1(1:x,mua.waveforms(i,:),L_im, 'linear'); % use 'linear' for speed or even 'nearest'
         end;
     end;
-    
-    
 end;
 
 
