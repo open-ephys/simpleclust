@@ -274,7 +274,7 @@ while run
         
         features=sc_parse_custerselection(features,x,y,mua,s_opt);
         
-        features=sc_parse_clickonwaveforms(x,y,features,mua);
+        features=sc_parse_clickonwaveforms(x,y,features,mua,s_opt);
         
         features=sc_parse_zoom(b,x,y,features);
         

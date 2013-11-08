@@ -1,4 +1,4 @@
-function features= parse_clickonwaveforms(x,y,features,mua)
+function features= parse_clickonwaveforms(x,y,features,mua,s_opt)
 
 
 psize=0.65;
@@ -110,7 +110,7 @@ for i=1:features.Nclusters
                     incluster=find(features.clusters==i );
                     features.clusters_undo=features.clusters;
                     features.clusters(incluster)=2;
-                    features=sc_updateclusterimages(features,mua);
+                    features=sc_updateclusterimages(features,mua,s_opt);
                     
                 end;
                 
@@ -197,7 +197,7 @@ for i=1:features.Nclusters
                     
                     if numel(targetcluster)>0
                         features.clusters(incluster)=targetcluster;
-                        features=sc_updateclusterimages(features,mua);
+                        features=sc_updateclusterimages(features,mua,s_opt);
                     end;
                     
                 end;
