@@ -101,9 +101,9 @@ for i=clusters_to_update
     
     inthiscluster=find(features.clusters==i);
     
-    if numel(inthiscluster)==1
-        g=g';
-    end;
+   % if numel(inthiscluster)==1
+   %     g=g';
+   % end;
     
     % only use some of the waveforms for very large clusters, tweak the
     % numbers, its just a guess for now
