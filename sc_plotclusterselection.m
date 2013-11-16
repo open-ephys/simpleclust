@@ -37,7 +37,7 @@ for i=1:features.Nclusters
     
     if i==1 %the null cluster functions slightly differently
         text(-1+(0.2*(i-1)) +.04 ,1.08,'+');
-        text(-1+(0.2*(i-1)) +.14 ,1.06,'*n');
+        text(-1+(0.2*(i-1)) +.14 ,1.06,'*^{-1}');
         text(-1+(0.2*(i-1)) +.04 ,1.02,'++');
         text(-1+(0.2*(i-1)) +.14 ,1.02,'-');
         
