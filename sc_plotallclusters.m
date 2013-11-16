@@ -1,4 +1,4 @@
-function sc_plotallclusters(features,mua)
+function sc_plotallclusters(features,mua,s_opt)
 
 psize=0.65;
 %plot(mua.ts_spike+1.5,mua.waveforms./1000);
@@ -21,7 +21,7 @@ for i=1:features.Nclusters
     %  plot ISI distribution
     try numel(features.isiplots); % update the isi plots in case this is an older file
     catch
-        features=sc_updateclusterimages(features,mua);
+        features=sc_updateclusterimages(features,mua,s_opt);
     end;
 if numel(features.isiplots{i})>1
     stairs(linspace(0,psize,features.isioptions(1).nbins)+xo+1,(features.isiplots{i}.*0)+yo-psize+1.02-(psize/2),'k','color',[1 1 1].*.8,'LineWidth',2);

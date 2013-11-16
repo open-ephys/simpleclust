@@ -195,7 +195,7 @@ while run
         
         sc_plotclusterselection(features);
         
-        sc_plotallclusters(features,mua);
+        sc_plotallclusters(features,mua,s_opt);
         
         sc_extramenu(features);
         
