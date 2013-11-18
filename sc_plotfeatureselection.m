@@ -31,3 +31,9 @@ text(-1.08 ,0.9,'y','color',[1 0 0]);
 plot([1 1].* -1.1,[-1 1],'color',[.8 .8 .8]);
 
 plot([1 1].* -1.2,[-1 1],'color',[.5 .5 .5]);
+
+% delete multiple feature button
+
+text(-1.3,0.94,'del.','color',[.6 .6 .6]);
+text(-1.3,0.90,'mult.','color',[.6 .6 .6]);
+    
