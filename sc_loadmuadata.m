@@ -3,7 +3,7 @@ function [features,mua]=sc_loadmuadata(muafile, dofeatures,s_opt)
 skipsetup=0;
 
 muafile
-[~,~,muafile_ext] = fileparts(muafile);
+[ignore,ignoreb,muafile_ext] = fileparts(muafile);
 muafile_ext = muafile_ext(2:end);
 
 switch muafile_ext
@@ -68,7 +68,7 @@ switch muafile_ext
                     else
                         
                         %do it automatically
-                        [~,n,~]=fileparts(muafile)
+                        [ignore,n,ignoreb]=fileparts(muafile)
                         disp('automatically detecting ch number for');
                         disp(muafile);
                         
@@ -191,7 +191,7 @@ switch muafile_ext
             else
                 
                 %do it automatically
-                [~,n,~]=fileparts(muafile)
+                [ignore,n,ignoreb]=fileparts(muafile)
                 disp('automatically detecting ch number for');
                 disp(muafile);
                 
@@ -259,7 +259,7 @@ switch muafile_ext
             else
                 
                 %do it automatically
-                [~,n,~]=fileparts(muafile)
+                [ignore,n,ignoreb]=fileparts(muafile)
                 disp('automatically detecting ch number for');
                 disp(muafile);
                 
@@ -325,7 +325,7 @@ switch muafile_ext
             else
                 
                 %do it automatically
-                [~,n,~]=fileparts(muafile)
+                [ignore,n,ignoreb]=fileparts(muafile)
                 disp('automatically detecting ch number for');
                 disp(muafile);
                 
@@ -393,7 +393,7 @@ switch muafile_ext
                 sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
             else
                 %do it automatically
-                [~,n,~]=fileparts(muafile);
+                [ignore,n,ignoreb]=fileparts(muafile);
                 disp('automatically detecting ch number for');
                 disp(muafile);
                 

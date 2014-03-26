@@ -18,7 +18,7 @@ for b=1:numel(trodeboundaries)-1
     u=[trodeboundaries(b):trodeboundaries(b+1)];
     for i=1:size(features.waveforms_hi,1)
         n=features.waveforms_hi(i,:);
-        [~,m]=max( n(u) );
+        [ignore,m]=max( n(u) );
         algd(i,u)= circshift(algd(i,u)',m)';
     end;
 end;

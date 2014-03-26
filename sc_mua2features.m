@@ -37,7 +37,7 @@ end;
 
 %% do PCA features
 
-
+%{
 disp('  precalculating PCA ...')
 
 
@@ -65,7 +65,9 @@ else
     D=zeros(size(mua.waveforms,1),8);
 end;
 %plot(coeffs(:,1),coeffs(:,2),'.','MarkerSize',.5)
-
+%}
+coeffs=[];
+    D=zeros(size(mua.waveforms,1),8);
 
 disp('  making features ..')
 
@@ -172,12 +174,13 @@ for n = 1:length(mua.ts)
         pc = [0 0 0 0 0 0 0 0 0];
     end;
     
+    %{
     for i=1:8
         c=c+1;
         features.data(c,n)= pc(i);
         if n==1; features.name{c}=['PCA ',num2str(i)]; end;
     end;
-    
+    %}
     
     
     % max. derivative

@@ -64,7 +64,7 @@ for i=1:features.Nclusters
             
             if ib==1 % only left clicks, right cancels
                 d=(ix-lx).^2 +(iy-ly).^2;
-                [~,m]=min(d);
+                [ignore,m]=min(d);
                 features.clusterlabels(i)=m;
             end;
             
@@ -102,7 +102,7 @@ for i=1:features.Nclusters
             [ix iy ib]=ginput(1);
             
             d=(ix-lx).^2 +(iy-ly).^2;
-            [~,m]=min(d);
+            [ignore,m]=min(d);
             
             if ib==1
                 if m==1 % move tcluster to noise
