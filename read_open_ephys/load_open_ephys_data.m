@@ -3,7 +3,7 @@ function [data, timestamps, info] = load_open_ephys_data(filename)
 %
 % [data, timestamps, info] = load_open_ephys_data(filename)
 %
-%   Loads continuous or event data files into Matlab.
+%   Loads continuous, event, or spike data files into Matlab.
 %
 %   Inputs:
 %
@@ -12,10 +12,11 @@ function [data, timestamps, info] = load_open_ephys_data(filename)
 %
 %   Outputs:
 %
-%     data: either an array continuous samples, a matrix of spike waveforms,
-%           or an array of event channels
+%     data: either an array continuous samples (in microvolts),
+%           a matrix of spike waveforms (in microvolts),
+%           or an array of event channels (integers)
 %
-%     timestamps: sample number
+%     timestamps: in seconds
 %
 %     info: structure with header and other information
 %
@@ -47,8 +48,7 @@ function [data, timestamps, info] = load_open_ephys_data(filename)
 %     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %     GNU General Public License for more details.
 %
-%     You should have received a copy of the GNU General Public License
-%     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%     <http://www.gnu.org/licenses/>.
 %
 
 filetype = filename(max(strfind(filename,'.'))+1:end); % parse filetype
@@ -61,13 +61,14 @@ NUM_HEADER_BYTES = 1024;
 SAMPLES_PER_RECORD = 1024;
 RECORD_SIZE = 8 + 16 + SAMPLES_PER_RECORD*2 + 10; % size of each continuous record in bytes
 RECORD_MARKER = [0 1 2 3 4 5 6 7 8 255]';
+RECORD_MARKER_V0 = [0 0 0 0 0 0 0 0 0 255]';
 
 % constants for pre-allocating matrices:
 MAX_NUMBER_OF_SPIKES = 1e6;
 MAX_NUMBER_OF_RECORDS = 1e4;
 MAX_NUMBER_OF_CONTINUOUS_SAMPLES = 10e6;
 MAX_NUMBER_OF_EVENTS = 1e6;
-SPIKE_PREALLOC_INTERVAL=1e6;
+SPIKE_PREALLOC_INTERVAL = 1e6;
 
 %-----------------------------------------------------------------------
 %------------------------- EVENT DATA ----------------------------------
@@ -83,6 +84,12 @@ if strcmp(filetype, 'events')
     eval(char(hdr'));
     info.header = header;
     
+    if (isfield(info.header, 'version'))
+        version = info.header.version;
+    else
+        version = 0.0;
+    end
+    
     % pre-allocate space for event data
     data = zeros(MAX_NUMBER_OF_EVENTS, 1);
     timestamps = zeros(MAX_NUMBER_OF_EVENTS, 1);
@@ -95,13 +102,22 @@ if strcmp(filetype, 'events')
         
         index = index + 1;
         
-        timestamps(index) = fread(fid, 1, 'uint64', 0, 'l');
+        if (version >= 0.1)
+            timestamps(index) = fread(fid, 1, 'int64', 0, 'l');
+        else
+            timestamps(index) = fread(fid, 1, 'uint64', 0, 'l');
+        end
+        
         
         info.sampleNum(index) = fread(fid, 1, 'int16'); % implemented after 11/16/12
         info.eventType(index) = fread(fid, 1, 'uint8');
         info.nodeId(index) = fread(fid, 1, 'uint8');
         info.eventId(index) = fread(fid, 1, 'uint8');
         data(index) = fread(fid, 1, 'uint8'); % save event channel as 'data' (maybe not the best thing to do)
+        
+        if version >= 0.2
+            info.recordingNumber(index) = fread(fid, 1, 'uint16');
+        end
         
     end
     
@@ -127,10 +143,20 @@ elseif strcmp(filetype, 'continuous')
     eval(char(hdr'));
     info.header = header;
     
+    if (isfield(info.header, 'version'))
+        version = info.header.version;
+    else
+        version = 0.0;
+    end
+    
     % pre-allocate space for continuous data
     data = zeros(MAX_NUMBER_OF_CONTINUOUS_SAMPLES, 1);
     info.ts = zeros(1, MAX_NUMBER_OF_RECORDS);
     info.nsamples = zeros(1, MAX_NUMBER_OF_RECORDS);
+    
+    if version >= 0.2
+        info.recNum = zeros(1, MAX_NUMBER_OF_RECORDS);
+    end
     
     current_sample = 0;
     
@@ -140,10 +166,22 @@ elseif strcmp(filetype, 'continuous')
         
         index = index + 1;
         
-        timestamp = fread(fid, 1, 'uint64', 0, 'l');
-        nsamples = fread(fid, 1, 'int16',0,'l');
+        if (version >= 0.1)
+            timestamp = fread(fid, 1, 'int64', 0, 'l');
+            nsamples = fread(fid, 1, 'uint16',0,'l');
+            
+            
+            if version >= 0.2
+                recNum = fread(fid, 1, 'uint16');
+            end
+            
+        else
+            timestamp = fread(fid, 1, 'uint64', 0, 'l');
+            nsamples = fread(fid, 1, 'int16',0,'l');
+        end
         
-        if nsamples ~= SAMPLES_PER_RECORD
+        
+        if nsamples ~= SAMPLES_PER_RECORD && version >= 0.1
             
             disp(['  Found corrupted record...searching for record marker.']);
             
@@ -198,6 +236,10 @@ elseif strcmp(filetype, 'continuous')
             info.ts(index) = timestamp;
             info.nsamples(index) = nsamples;
             
+            if version >= 0.2
+                info.recNum(index) = recNum;
+            end
+            
         end
         
     end
@@ -207,21 +249,40 @@ elseif strcmp(filetype, 'continuous')
     info.ts(index+1:end) = [ ];
     info.nsamples(index+1:end) = [ ];
     
+    if version >= 0.2
+        info.recNum(index+1:end) = [ ];
+    end
+    
+    % convert to microvolts
+    data = data.*info.header.bitVolts;
+    
     timestamps = nan(size(data));
     
     current_sample = 0;
     
-    for record = 1:length(info.ts)-1
+    if version >= 0.1
         
-        ts_interp = linspace(info.ts(record),info.ts(record+1),info.nsamples(record)+1);
+        for record = 1:length(info.ts)
+
+            ts_interp = info.ts(record):info.ts(record)+info.nsamples(record);
+
+            timestamps(current_sample+1:current_sample+info.nsamples(record)) = ts_interp(1:end-1);
+
+            current_sample = current_sample + info.nsamples(record);
+        end
+    else % v0.0; NOTE: the timestamps for the last record will not be interpolated
         
-        timestamps(current_sample+1:current_sample+info.nsamples(record)) = ts_interp(1:end-1);
+         for record = 1:length(info.ts)-1
+
+            ts_interp = linspace(info.ts(record), info.ts(record+1), info.nsamples(record)+1);
+
+            timestamps(current_sample+1:current_sample+info.nsamples(record)) = ts_interp(1:end-1);
+
+            current_sample = current_sample + info.nsamples(record);
+         end
         
-        current_sample = current_sample + info.nsamples(record);
     end
-    
-    % NOTE: the timestamps for the last record will not be interpolated
-    
+
     
     %-----------------------------------------------------------------------
     %--------------------------- SPIKE DATA --------------------------------
@@ -237,28 +298,47 @@ elseif strcmp(filetype, 'spikes')
     eval(char(hdr'));
     info.header = header;
     
+    if (isfield(info.header, 'version'))
+        version = info.header.version;
+    else
+        version = 0.0;
+    end
+    
     num_channels = info.header.num_channels;
     num_samples = 40; % **NOT CURRENTLY WRITTEN TO HEADER**
     
     % pre-allocate space for spike data
     
     data = zeros(MAX_NUMBER_OF_SPIKES, num_samples, num_channels);
-    timestamps = zeros(1, MAX_NUMBER_OF_SPIKES);
-    info.source = zeros(1, MAX_NUMBER_OF_SPIKES);
+    timestamps = zeros(MAX_NUMBER_OF_SPIKES, 1);
+    info.source = zeros(MAX_NUMBER_OF_SPIKES, 1);
+    info.gain = zeros(MAX_NUMBER_OF_SPIKES, num_channels);
+    info.thresh = zeros(MAX_NUMBER_OF_SPIKES, num_channels);
     
+    if (version >= 0.2)
+        info.recNum = zeros(MAX_NUMBER_OF_SPIKES, 1);
+    end
     
     
     current_spike = 0;
+    last_percent=0;
     
     while ftell(fid) + 512 < filesize % at least one record remains
         
         current_spike = current_spike + 1;
         
         %pre-allocate in blocks
-        if mod(current_spike,SPIKE_PREALLOC_INTERVAL)==2 % dont pre-alloc on the 1st because we dont have the N samples yet so we'll take that from the spike record
-            data(current_spike+SPIKE_PREALLOC_INTERVAL+1, 1, num_channels)=0;
+        if mod(current_spike,SPIKE_PREALLOC_INTERVAL) == 2 % dont pre-alloc on the 1st because we dont have the N samples yet so we'll take that from the spike record
+            data(current_spike+SPIKE_PREALLOC_INTERVAL+1, 1, num_channels) = 0;
+            info.thresh(current_spike+SPIKE_PREALLOC_INTERVAL+1,1) =0;
+            info.gain(current_spike+SPIKE_PREALLOC_INTERVAL+1,1) = 0;
         end;
         
+        current_percent= round(100* ((ftell(fid) + 512) / filesize));
+        if current_percent >= last_percent+10
+            last_percent=current_percent;
+            fprintf(' %d%%',current_percent);
+        end;
         
         idx = 0;
         
@@ -266,7 +346,12 @@ elseif strcmp(filetype, 'spikes')
         
         idx = idx + 1;
         
-        timestamps(current_spike) = fread(fid, 1, 'uint64', 0, 'l');
+        if (version >= 0.1)
+            timestamps(current_spike) = fread(fid, 1, 'int64', 0, 'l');
+        else
+            timestamps(current_spike) = fread(fid, 1, 'uint64', 0, 'l');
+        end
+        
         
         idx = idx + 8;
         
@@ -292,25 +377,38 @@ elseif strcmp(filetype, 'spikes')
         wv = reshape(waveforms, num_samples, num_channels);
         
         channel_gains = fread(fid, num_channels, 'uint16', 0, 'l');
+        info.gain(current_spike,:) = channel_gains;
         
         % gain = double(repmat(channel_gains', num_samples, 1))/1000;
         
         channel_thresholds = fread(fid, num_channels, 'uint16', 0, 'l');
+        info.thresh(current_spike,:) = channel_thresholds;
+        
+        if version >= 0.2
+            info.recNum(current_spike) = fread(fid, 1, 'uint16', 0, 'l');
+        end
         
         idx = idx + num_channels*2*2;
-        
+
         %data(current_spike, :, :) = double(wv-32768)./gain;
         data(current_spike, :, :) = wv;
     end
-    
-    for ch=1:num_channels % scale the waveforms
-        data(:, :, ch)=double(data(:, :, ch)-32768)./(channel_gains(ch)/1000);
+    fprintf('\n')
+    for ch = 1:num_channels % scale the waveforms
+        data(:, :, ch) = double(data(:, :, ch)-32768)./(channel_gains(ch)/1000);
     end;
-    
     
     data(current_spike+1:end,:,:) = [ ];
     timestamps(current_spike+1:end) = [ ];
     info.source(current_spike+1:end) = [ ];
+    info.gain(current_spike+1:end,:) = [ ];
+    info.thresh(current_spike+1:end,:) = [ ];
+    
+    if version >= 0.2
+        info.recNum(current_spike+1:end) = [ ];
+    end
+    
+    
     
 else
     
@@ -319,6 +417,12 @@ else
 end
 
 fclose(fid); % close the file
+
+if (isfield(info.header,'sampleRate'))
+    if ~ischar(info.header.sampleRate)
+      timestamps = timestamps./info.header.sampleRate; % convert to seconds
+    end
+end
 
 end
 
