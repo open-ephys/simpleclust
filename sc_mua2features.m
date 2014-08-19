@@ -17,7 +17,7 @@ if numel(mua.ts)<size(mua.waveforms,1)
     warning('fewer spikes than waveforms, truncating!');
     mua.waveforms = mua.waveforms(1:numel(mua.ts),:);
 end;
-    
+
 
 
 %% get Wavelet coeffs
@@ -67,7 +67,7 @@ end;
 %plot(coeffs(:,1),coeffs(:,2),'.','MarkerSize',.5)
 %}
 coeffs=[];
-    D=zeros(size(mua.waveforms,1),8);
+D=zeros(size(mua.waveforms,1),8);
 
 disp('  making features ..')
 
