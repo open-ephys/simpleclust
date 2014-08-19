@@ -72,7 +72,6 @@ if s_opt.auto_overlap && (features.skipsetup==0) % automatically load all others
     end;
     
     
-    
 else % select manually
     if s_opt.auto_overlap_dontask
         features.loadmultiple=0;

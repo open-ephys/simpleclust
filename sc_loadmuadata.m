@@ -13,7 +13,7 @@ switch muafile_ext
         
         features.chnumstr = info.header.electrode;
         features.sourcechannel= str2num(info.header.electrode(end-1:end));
-        sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+        sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
         
         
         mua.Nspikes = numel(timestamps);
@@ -40,7 +40,7 @@ switch muafile_ext
         
         
         if dofeatures
-            features=sc_mua2features(mua);
+            features=sc_mua2features(mua,s_opt);
             features.sourcechannel=sourcechannel;
         end;
         
@@ -64,7 +64,7 @@ switch muafile_ext
                         def = {''};
                         features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
                         features.sourcechannel= str2num(features.chnumstr{1});
-                        sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                        sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
                     else
                         
                         %do it automatically
@@ -81,7 +81,7 @@ switch muafile_ext
                         disp(['-> ch ',num2str(ch)]);
                         features.chnumstr = ch;
                         features.sourcechannel= ch;
-                        sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                        sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
                         
                     end;
                     
@@ -103,7 +103,7 @@ switch muafile_ext
                 
                 mua.ts_spike=[1:size( mua.waveforms,2)];
                 if dofeatures
-                    features=sc_mua2features(mua);
+                    features=sc_mua2features(mua,s_opt);
                     features.sourcechannel=sourcechannel;
                 end;
                 
@@ -146,7 +146,7 @@ switch muafile_ext
                     mua.ts_spike=linspace(-.5,2.5,93); %  we do  31 samples at 30303Hz, so its a 1.056ms window
                     
                     if dofeatures
-                        features=sc_mua2features(mua);
+                        features=sc_mua2features(mua,s_opt);
                         sourcechannel=mua.sourcechannel;
                         features.sourcechannel=sourcechannel;
                     end;
@@ -160,7 +160,7 @@ switch muafile_ext
                     mua.ts_spike=linspace(-.5,2.5,93); %  we do  31 samples at 30303Hz, so its a 1.056ms window
                     mua.ts_spike=linspace(0,4,size(mua.waveforms,2));
                     if dofeatures
-                        features=sc_mua2features(mua);
+                        features=sc_mua2features(mua,s_opt);
                         sourcechannel=mua.sourcechannel;
                         features.sourcechannel=sourcechannel;
                     end;
@@ -168,7 +168,7 @@ switch muafile_ext
                     mua.ncontacts = 1;
                     
                     if dofeatures
-                        features=sc_mua2features(mua);
+                        features=sc_mua2features(mua,s_opt);
                         sourcechannel=mua.sourcechannel;;
                         features.sourcechannel=sourcechannel;
                     end;
@@ -187,7 +187,7 @@ switch muafile_ext
                 def = {''};
                 features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
                 features.sourcechannel= str2num(features.chnumstr{1});
-                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
             else
                 
                 %do it automatically
@@ -204,7 +204,7 @@ switch muafile_ext
                 disp(['-> ch ',num2str(ch)]);
                 features.chnumstr = ch;
                 features.sourcechannel= ch;
-                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
                 
             end;
             
@@ -241,7 +241,7 @@ switch muafile_ext
         mua.ts_spike=linspace(-.5,0.5,32);  %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
         
         if dofeatures
-            features=sc_mua2features(mua);
+            features=sc_mua2features(mua,s_opt);
             features.sourcechannel=sourcechannel;
         end;
         
@@ -255,7 +255,7 @@ switch muafile_ext
                 def = {''};
                 features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
                 features.sourcechannel= str2num(features.chnumstr{1});
-                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
             else
                 
                 %do it automatically
@@ -272,7 +272,7 @@ switch muafile_ext
                 disp(['-> ch ',num2str(ch)]);
                 features.chnumstr = ch;
                 features.sourcechannel= ch;
-                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
                 
             end;
             
@@ -306,7 +306,7 @@ switch muafile_ext
         mua.ts_spike=linspace(-.5,1.5,64); %  neuralynx saves 32 samples at 30303Hz, so its a 1.056ms window
         
         if dofeatures
-            features=sc_mua2features(mua);
+            features=sc_mua2features(mua,s_opt);
             features.sourcechannel=sourcechannel;
         end;
         
@@ -321,7 +321,7 @@ switch muafile_ext
                 def = {''};
                 features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
                 features.sourcechannel= str2num(features.chnumstr{1});
-                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
             else
                 
                 %do it automatically
@@ -338,7 +338,7 @@ switch muafile_ext
                 disp(['-> ch ',num2str(ch)]);
                 features.chnumstr = ch;
                 features.sourcechannel= ch;
-                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
                 
             end;
             
@@ -377,7 +377,7 @@ switch muafile_ext
         
         
         if dofeatures
-            features=sc_mua2features(mua);
+            features=sc_mua2features(mua,s_opt);
             features.sourcechannel=sourcechannel;
         end;
         
@@ -390,7 +390,7 @@ switch muafile_ext
                 def = {''};
                 features.chnumstr = inputdlg(prompt,dlg_title,num_lines,def);
                 features.sourcechannel= str2num(features.chnumstr{1});
-                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
             else
                 %do it automatically
                 [ignore,n,ignoreb]=fileparts(muafile);
@@ -407,7 +407,7 @@ switch muafile_ext
                 disp(['-> ch ',num2str(ch)]);
                 features.chnumstr = ch;
                 features.sourcechannel= ch;
-                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua);'
+                sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
                 
             end;
             
@@ -436,7 +436,7 @@ switch muafile_ext
         
         mua.ts_spike = linspace(mua.opt.SpikeExtract_WFRange(1), mua.opt.SpikeExtract_WFRange(2), mua.opt.NumPointsInWF)./mua.opt.SampleFrequency;
         if dofeatures
-            features=sc_mua2features(mua);
+            features=sc_mua2features(mua,s_opt);
             features.sourcechannel=sourcechannel;
         end;
         

@@ -102,6 +102,12 @@ s_opt.invert= 1; % invert waveforms?
 
 s_opt.skipevery_wf_display = 16; % skip every Nth waveform in the waveform display - this only sets an upper bound! smaller clusters will not be affected by this.
 
+% specify what features to compute:
+s_opt.features.pca=0;
+s_opt.features.wavelet=0;
+s_opt.features.nonlinear_energy=1;
+s_opt.features.max_derivative=1;
+
 %% init
 run = 1;
 dataloaded = 0;
