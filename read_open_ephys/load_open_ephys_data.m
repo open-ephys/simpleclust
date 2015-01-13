@@ -34,7 +34,7 @@ function [data, timestamps, info] = load_open_ephys_data(filename)
 %
 %     ------------------------------------------------------------------
 %
-%     Copyright (C) 2013 Open Ephys
+%     Copyright (C) 2014 Open Ephys
 %
 %     ------------------------------------------------------------------
 %
@@ -65,8 +65,8 @@ RECORD_MARKER_V0 = [0 0 0 0 0 0 0 0 0 255]';
 
 % constants for pre-allocating matrices:
 MAX_NUMBER_OF_SPIKES = 1e6;
-MAX_NUMBER_OF_RECORDS = 1e4;
-MAX_NUMBER_OF_CONTINUOUS_SAMPLES = 10e6;
+MAX_NUMBER_OF_RECORDS = 1e6;
+MAX_NUMBER_OF_CONTINUOUS_SAMPLES = 1e8;
 MAX_NUMBER_OF_EVENTS = 1e6;
 SPIKE_PREALLOC_INTERVAL = 1e6;
 
@@ -98,7 +98,13 @@ if strcmp(filetype, 'events')
     info.eventType = zeros(MAX_NUMBER_OF_EVENTS, 1);
     info.eventId = zeros(MAX_NUMBER_OF_EVENTS, 1);
     
-    while ftell(fid) + 22 < filesize % at least one record remains
+    if (version >= 0.2)
+        recordOffset = 15;
+    else
+        recordOffset = 13;
+    end
+    
+    while ftell(fid) + recordOffset < filesize % at least one record remains
         
         index = index + 1;
         
@@ -122,12 +128,12 @@ if strcmp(filetype, 'events')
     end
     
     % crop the arrays to the correct size
-    data(index+1:end) = [ ];
-    timestamps(index+1:end) = [ ];
-    info.sampleNum(index+1:end) = [ ];
-    info.nodeId(index+1:end) = [ ];
-    info.eventType(index+1:end) = [ ];
-    info.eventId(index+1:end) = [ ];
+    data = data(1:index);
+    timestamps = timestamps(1:index);
+    info.sampleNum = info.sampleNum(1:index);
+    info.nodeId = info.nodeId(1:index);
+    info.eventType = info.eventType(1:index);
+    info.eventId = info.eventId(1:index);
     
     %-----------------------------------------------------------------------
     %---------------------- CONTINUOUS DATA --------------------------------
@@ -245,12 +251,12 @@ elseif strcmp(filetype, 'continuous')
     end
     
     % crop data to the correct size
-    data(current_sample+1:end) = [ ];
-    info.ts(index+1:end) = [ ];
-    info.nsamples(index+1:end) = [ ];
+    data = data(1:current_sample);
+    info.ts = info.ts(1:index);
+    info.nsamples = info.nsamples(1:index);
     
     if version >= 0.2
-        info.recNum(index+1:end) = [ ];
+        info.recNum = info.recNum(1:index);
     end
     
     % convert to microvolts
@@ -308,12 +314,15 @@ elseif strcmp(filetype, 'spikes')
     num_samples = 40; % **NOT CURRENTLY WRITTEN TO HEADER**
     
     % pre-allocate space for spike data
-    
     data = zeros(MAX_NUMBER_OF_SPIKES, num_samples, num_channels);
     timestamps = zeros(MAX_NUMBER_OF_SPIKES, 1);
     info.source = zeros(MAX_NUMBER_OF_SPIKES, 1);
     info.gain = zeros(MAX_NUMBER_OF_SPIKES, num_channels);
     info.thresh = zeros(MAX_NUMBER_OF_SPIKES, num_channels);
+    
+    if (version >= 0.4)
+        info.sortedId = zeros(MAX_NUMBER_OF_SPIKES, num_channels);
+    end
     
     if (version >= 0.2)
         info.recNum = zeros(MAX_NUMBER_OF_SPIKES, 1);
@@ -327,13 +336,6 @@ elseif strcmp(filetype, 'spikes')
         
         current_spike = current_spike + 1;
         
-        %pre-allocate in blocks
-        if mod(current_spike,SPIKE_PREALLOC_INTERVAL) == 2 % dont pre-alloc on the 1st because we dont have the N samples yet so we'll take that from the spike record
-            data(current_spike+SPIKE_PREALLOC_INTERVAL+1, 1, num_channels) = 0;
-            info.thresh(current_spike+SPIKE_PREALLOC_INTERVAL+1,1) =0;
-            info.gain(current_spike+SPIKE_PREALLOC_INTERVAL+1,1) = 0;
-        end;
-        
         current_percent= round(100* ((ftell(fid) + 512) / filesize));
         if current_percent >= last_percent+10
             last_percent=current_percent;
@@ -342,23 +344,37 @@ elseif strcmp(filetype, 'spikes')
         
         idx = 0;
         
+        % read in event type (1 byte)
         event_type = fread(fid, 1, 'uint8'); % always equal to 4; ignore
         
         idx = idx + 1;
         
-        if (version >= 0.1)
+        if (version == 0.3)
+            event_size = fread(fid, 1, 'uint32', 0, 'l');
+            idx = idx + 4;
+            ts = fread(fid, 1, 'int64', 0, 'l'); 
+            idx = idx + 8;
+        elseif (version >= 0.4)
             timestamps(current_spike) = fread(fid, 1, 'int64', 0, 'l');
-        else
-            timestamps(current_spike) = fread(fid, 1, 'uint64', 0, 'l');
+            idx = idx + 8;
+            ts_software = fread(fid, 1, 'int64', 0, 'l');
+            idx = idx + 8;
         end
-        
-        
-        idx = idx + 8;
+            
+        if (version < 0.4)
+            if (version >= 0.1)
+                timestamps(current_spike) = fread(fid, 1, 'int64', 0, 'l');
+            else
+                timestamps(current_spike) = fread(fid, 1, 'uint64', 0, 'l');
+            end
+
+            idx = idx + 8;
+        end
         
         info.source(current_spike) = fread(fid, 1, 'uint16', 0, 'l');
         
         idx = idx + 2;
-        
+
         num_channels = fread(fid, 1, 'uint16', 0, 'l');
         num_samples = fread(fid, 1, 'uint16', 0, 'l');
         
@@ -370,45 +386,63 @@ elseif strcmp(filetype, 'spikes')
             break;
         end
         
+        if (version >= 0.4)
+            info.sortedId(current_spike) = fread(fid, 1, 'uint16', 0, 'l');
+            electrodeId = fread(fid, 1, 'uint16', 0, 'l');
+            channel = fread(fid, 1, 'uint16', 0, 'l');
+            color = fread(fid, 3, 'uint8', 0, 'l');
+            pcProj = fread(fid, 2, 'single');
+            sampleFreq = fread(fid, 1, 'uint16', 0, 'l');
+            idx = idx + 19;
+        end
+        
         waveforms = fread(fid, num_channels*num_samples, 'uint16', 0, 'l');
         
         idx = idx + num_channels*num_samples*2;
         
         wv = reshape(waveforms, num_samples, num_channels);
         
-        channel_gains = fread(fid, num_channels, 'uint16', 0, 'l');
+        if (version < 0.4)
+            channel_gains = fread(fid, num_channels, 'uint16', 0, 'l');
+            idx = idx + num_channels * 2;
+        else
+            channel_gains = fread(fid, num_channels, 'single');
+            idx = idx + num_channels * 4;
+        end
+        
         info.gain(current_spike,:) = channel_gains;
         
-        % gain = double(repmat(channel_gains', num_samples, 1))/1000;
-        
         channel_thresholds = fread(fid, num_channels, 'uint16', 0, 'l');
+        idx = idx + num_channels * 2;
+        
         info.thresh(current_spike,:) = channel_thresholds;
         
         if version >= 0.2
             info.recNum(current_spike) = fread(fid, 1, 'uint16', 0, 'l');
+            idx = idx + 2;
         end
         
-        idx = idx + num_channels*2*2;
-
-        %data(current_spike, :, :) = double(wv-32768)./gain;
         data(current_spike, :, :) = wv;
+        
     end
     fprintf('\n')
     for ch = 1:num_channels % scale the waveforms
         data(:, :, ch) = double(data(:, :, ch)-32768)./(channel_gains(ch)/1000);
     end;
     
-    data(current_spike+1:end,:,:) = [ ];
-    timestamps(current_spike+1:end) = [ ];
-    info.source(current_spike+1:end) = [ ];
-    info.gain(current_spike+1:end,:) = [ ];
-    info.thresh(current_spike+1:end,:) = [ ];
+    data = data(1:current_spike,:,:);
+    timestamps = timestamps(1:current_spike);
+    info.source = info.source(1:current_spike);
+    info.gain = info.gain(1:current_spike);
+    info.thresh = info.thresh(1:current_spike);
     
     if version >= 0.2
-        info.recNum(current_spike+1:end) = [ ];
+        info.recNum = info.recNum(1:current_spike); 
     end
     
-    
+    if version >= 0.4
+        info.sortedId = info.sortedId(1:current_spike);
+    end
     
 else
     
