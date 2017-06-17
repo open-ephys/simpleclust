@@ -1,18 +1,22 @@
-function [data, timestamps, info] = load_open_ephys_data(filename)
-
+function [data, timestamps, info] = load_open_ephys_data(filename, varargin)
 %
-% [data, timestamps, info] = load_open_ephys_data(filename)
+% [data, timestamps, info] = load_open_ephys_data(filename, [outputFormat])
 %
 %   Loads continuous, event, or spike data files into Matlab.
 %
 %   Inputs:
 %
 %     filename: path to file
+%     outputFormat: (optional) If omitted, continuous data is output in double format and is scaled to reflect microvolts. 
+%                   If this argument is 'unscaledInt16' and the file contains continuous data, the output data will be in
+%                   int16 format and will not be scaled; this data must be manually converted to a floating-point format
+%                   and multiplied by info.header.bitVolts to obtain microvolt values. This feature is intended to save memory
+%                   for operations involving large amounts of data.
 %
 %
 %   Outputs:
 %
-%     data: either an array continuous samples (in microvolts),
+%     data: either an array continuous samples (in microvolts unless outputFormat is specified, see above),
 %           a matrix of spike waveforms (in microvolts),
 %           or an array of event channels (integers)
 %
@@ -51,420 +55,136 @@ function [data, timestamps, info] = load_open_ephys_data(filename)
 %     <http://www.gnu.org/licenses/>.
 %
 
-filetype = filename(max(strfind(filename,'.'))+1:end); % parse filetype
+[~,~,filetype] = fileparts(filename);
+if ~any(strcmp(filetype,{'.events','.continuous','.spikes'}))
+    error('File extension not recognized. Please use a ''.continuous'', ''.spikes'', or ''.events'' file.');
+end
+
+bInt16Out = false;
+if nargin > 2
+    error('Too many input arguments.');
+elseif nargin == 2
+    if strcmpi(varargin{1}, 'unscaledInt16')
+        bInt16Out = true;
+    else
+        error('Unrecognized output format.');
+    end
+end
 
 fid = fopen(filename);
-filesize = getfilesize(fid);
-
-% constants
-NUM_HEADER_BYTES = 1024;
-SAMPLES_PER_RECORD = 1024;
-RECORD_SIZE = 8 + 16 + SAMPLES_PER_RECORD*2 + 10; % size of each continuous record in bytes
-RECORD_MARKER = [0 1 2 3 4 5 6 7 8 255]';
-RECORD_MARKER_V0 = [0 0 0 0 0 0 0 0 0 255]';
-
-% constants for pre-allocating matrices:
-MAX_NUMBER_OF_SPIKES = 1e6;
-MAX_NUMBER_OF_RECORDS = 1e6;
-MAX_NUMBER_OF_CONTINUOUS_SAMPLES = 1e8;
-MAX_NUMBER_OF_EVENTS = 1e6;
-SPIKE_PREALLOC_INTERVAL = 1e6;
-
-%-----------------------------------------------------------------------
-%------------------------- EVENT DATA ----------------------------------
-%-----------------------------------------------------------------------
-
-if strcmp(filetype, 'events')
-    
-    disp(['Loading events file...']);
-    
-    index = 0;
-    
-    hdr = fread(fid, NUM_HEADER_BYTES, 'char*1');
-    eval(char(hdr'));
-    info.header = header;
-    
-    if (isfield(info.header, 'version'))
-        version = info.header.version;
-    else
-        version = 0.0;
-    end
-    
-    % pre-allocate space for event data
-    data = zeros(MAX_NUMBER_OF_EVENTS, 1);
-    timestamps = zeros(MAX_NUMBER_OF_EVENTS, 1);
-    info.sampleNum = zeros(MAX_NUMBER_OF_EVENTS, 1);
-    info.nodeId = zeros(MAX_NUMBER_OF_EVENTS, 1);
-    info.eventType = zeros(MAX_NUMBER_OF_EVENTS, 1);
-    info.eventId = zeros(MAX_NUMBER_OF_EVENTS, 1);
-    
-    if (version >= 0.2)
-        recordOffset = 15;
-    else
-        recordOffset = 13;
-    end
-    
-    while ftell(fid) + recordOffset < filesize % at least one record remains
-        
-        index = index + 1;
-        
-        if (version >= 0.1)
-            timestamps(index) = fread(fid, 1, 'int64', 0, 'l');
-        else
-            timestamps(index) = fread(fid, 1, 'uint64', 0, 'l');
-        end
-        
-        
-        info.sampleNum(index) = fread(fid, 1, 'int16'); % implemented after 11/16/12
-        info.eventType(index) = fread(fid, 1, 'uint8');
-        info.nodeId(index) = fread(fid, 1, 'uint8');
-        info.eventId(index) = fread(fid, 1, 'uint8');
-        data(index) = fread(fid, 1, 'uint8'); % save event channel as 'data' (maybe not the best thing to do)
-        
-        if version >= 0.2
-            info.recordingNumber(index) = fread(fid, 1, 'uint16');
-        end
-        
-    end
-    
-    % crop the arrays to the correct size
-    data = data(1:index);
-    timestamps = timestamps(1:index);
-    info.sampleNum = info.sampleNum(1:index);
-    info.nodeId = info.nodeId(1:index);
-    info.eventType = info.eventType(1:index);
-    info.eventId = info.eventId(1:index);
-    
-    %-----------------------------------------------------------------------
-    %---------------------- CONTINUOUS DATA --------------------------------
-    %-----------------------------------------------------------------------
-    
-elseif strcmp(filetype, 'continuous')
-    
-    disp(['Loading ' filename '...']);
-    
-    index = 0;
-    
-    hdr = fread(fid, NUM_HEADER_BYTES, 'char*1');
-    eval(char(hdr'));
-    info.header = header;
-    
-    if (isfield(info.header, 'version'))
-        version = info.header.version;
-    else
-        version = 0.0;
-    end
-    
-    % pre-allocate space for continuous data
-    data = zeros(MAX_NUMBER_OF_CONTINUOUS_SAMPLES, 1);
-    info.ts = zeros(1, MAX_NUMBER_OF_RECORDS);
-    info.nsamples = zeros(1, MAX_NUMBER_OF_RECORDS);
-    
-    if version >= 0.2
-        info.recNum = zeros(1, MAX_NUMBER_OF_RECORDS);
-    end
-    
-    current_sample = 0;
-    
-    while ftell(fid) + RECORD_SIZE < filesize % at least one record remains
-        
-        go_back_to_start_of_loop = 0;
-        
-        index = index + 1;
-        
-        if (version >= 0.1)
-            timestamp = fread(fid, 1, 'int64', 0, 'l');
-            nsamples = fread(fid, 1, 'uint16',0,'l');
-            
-            
-            if version >= 0.2
-                recNum = fread(fid, 1, 'uint16');
-            end
-            
-        else
-            timestamp = fread(fid, 1, 'uint64', 0, 'l');
-            nsamples = fread(fid, 1, 'int16',0,'l');
-        end
-        
-        
-        if nsamples ~= SAMPLES_PER_RECORD && version >= 0.1
-            
-            disp(['  Found corrupted record...searching for record marker.']);
-            
-            % switch to searching for record markers
-            
-            last_ten_bytes = zeros(size(RECORD_MARKER));
-            
-            for bytenum = 1:RECORD_SIZE*5
-                
-                byte = fread(fid, 1, 'uint8');
-                
-                last_ten_bytes = circshift(last_ten_bytes,-1);
-                
-                last_ten_bytes(10) = double(byte);
-                
-                if last_ten_bytes(10) == RECORD_MARKER(end);
-                    
-                    sq_err = sum((last_ten_bytes - RECORD_MARKER).^2);
-                    
-                    if (sq_err == 0)
-                        disp(['   Found a record marker after ' int2str(bytenum) ' bytes!']);
-                        go_back_to_start_of_loop = 1;
-                        break; % from 'for' loop
-                    end
-                end
-            end
-            
-            % if we made it through the approximate length of 5 records without
-            % finding a marker, abandon ship.
-            if bytenum == RECORD_SIZE*5
-                
-                disp(['Loading failed at block number ' int2str(index) '. Found ' ...
-                    int2str(nsamples) ' samples.'])
-                
-                break; % from 'while' loop
-                
-            end
-            
-            
-        end
-        
-        if ~go_back_to_start_of_loop
-            
-            block = fread(fid, nsamples, 'int16', 0, 'b'); % read in data
-            
-            fread(fid, 10, 'char*1'); % read in record marker and discard
-            
-            data(current_sample+1:current_sample+nsamples) = block;
-            
-            current_sample = current_sample + nsamples;
-            
-            info.ts(index) = timestamp;
-            info.nsamples(index) = nsamples;
-            
-            if version >= 0.2
-                info.recNum(index) = recNum;
-            end
-            
-        end
-        
-    end
-    
-    % crop data to the correct size
-    data = data(1:current_sample);
-    info.ts = info.ts(1:index);
-    info.nsamples = info.nsamples(1:index);
-    
-    if version >= 0.2
-        info.recNum = info.recNum(1:index);
-    end
-    
-    % convert to microvolts
-    data = data.*info.header.bitVolts;
-    
-    timestamps = nan(size(data));
-    
-    current_sample = 0;
-    
-    if version >= 0.1
-        
-        for record = 1:length(info.ts)
-
-            ts_interp = info.ts(record):info.ts(record)+info.nsamples(record);
-
-            timestamps(current_sample+1:current_sample+info.nsamples(record)) = ts_interp(1:end-1);
-
-            current_sample = current_sample + info.nsamples(record);
-        end
-    else % v0.0; NOTE: the timestamps for the last record will not be interpolated
-        
-         for record = 1:length(info.ts)-1
-
-            ts_interp = linspace(info.ts(record), info.ts(record+1), info.nsamples(record)+1);
-
-            timestamps(current_sample+1:current_sample+info.nsamples(record)) = ts_interp(1:end-1);
-
-            current_sample = current_sample + info.nsamples(record);
-         end
-        
-    end
-
-    
-    %-----------------------------------------------------------------------
-    %--------------------------- SPIKE DATA --------------------------------
-    %-----------------------------------------------------------------------
-    
-elseif strcmp(filetype, 'spikes')
-    
-    disp(['Loading spikes file...']);
-    
-    index = 0;
-    
-    hdr = fread(fid, NUM_HEADER_BYTES, 'char*1');
-    eval(char(hdr'));
-    info.header = header;
-    
-    if (isfield(info.header, 'version'))
-        version = info.header.version;
-    else
-        version = 0.0;
-    end
-    
-    num_channels = info.header.num_channels;
-    num_samples = 40; % **NOT CURRENTLY WRITTEN TO HEADER**
-    
-    % pre-allocate space for spike data
-    data = zeros(MAX_NUMBER_OF_SPIKES, num_samples, num_channels);
-    timestamps = zeros(MAX_NUMBER_OF_SPIKES, 1);
-    info.source = zeros(MAX_NUMBER_OF_SPIKES, 1);
-    info.gain = zeros(MAX_NUMBER_OF_SPIKES, num_channels);
-    info.thresh = zeros(MAX_NUMBER_OF_SPIKES, num_channels);
-    
-    if (version >= 0.4)
-        info.sortedId = zeros(MAX_NUMBER_OF_SPIKES, num_channels);
-    end
-    
-    if (version >= 0.2)
-        info.recNum = zeros(MAX_NUMBER_OF_SPIKES, 1);
-    end
-    
-    
-    current_spike = 0;
-    last_percent=0;
-    
-    while ftell(fid) + 512 < filesize % at least one record remains
-        
-        current_spike = current_spike + 1;
-        
-        current_percent= round(100* ((ftell(fid) + 512) / filesize));
-        if current_percent >= last_percent+10
-            last_percent=current_percent;
-            fprintf(' %d%%',current_percent);
-        end;
-        
-        idx = 0;
-        
-        % read in event type (1 byte)
-        event_type = fread(fid, 1, 'uint8'); % always equal to 4; ignore
-        
-        idx = idx + 1;
-        
-        if (version == 0.3)
-            event_size = fread(fid, 1, 'uint32', 0, 'l');
-            idx = idx + 4;
-            ts = fread(fid, 1, 'int64', 0, 'l'); 
-            idx = idx + 8;
-        elseif (version >= 0.4)
-            timestamps(current_spike) = fread(fid, 1, 'int64', 0, 'l');
-            idx = idx + 8;
-            ts_software = fread(fid, 1, 'int64', 0, 'l');
-            idx = idx + 8;
-        end
-            
-        if (version < 0.4)
-            if (version >= 0.1)
-                timestamps(current_spike) = fread(fid, 1, 'int64', 0, 'l');
-            else
-                timestamps(current_spike) = fread(fid, 1, 'uint64', 0, 'l');
-            end
-
-            idx = idx + 8;
-        end
-        
-        info.source(current_spike) = fread(fid, 1, 'uint16', 0, 'l');
-        
-        idx = idx + 2;
-
-        num_channels = fread(fid, 1, 'uint16', 0, 'l');
-        num_samples = fread(fid, 1, 'uint16', 0, 'l');
-        
-        idx = idx + 4;
-        
-        if num_samples < 1 || num_samples > 10000
-            disp(['Loading failed at block number ' int2str(current_spike) '. Found ' ...
-                int2str(num_samples) ' samples.'])
-            break;
-        end
-        
-        if (version >= 0.4)
-            info.sortedId(current_spike) = fread(fid, 1, 'uint16', 0, 'l');
-            electrodeId = fread(fid, 1, 'uint16', 0, 'l');
-            channel = fread(fid, 1, 'uint16', 0, 'l');
-            color = fread(fid, 3, 'uint8', 0, 'l');
-            pcProj = fread(fid, 2, 'single');
-            sampleFreq = fread(fid, 1, 'uint16', 0, 'l');
-            idx = idx + 19;
-        end
-        
-        waveforms = fread(fid, num_channels*num_samples, 'uint16', 0, 'l');
-        
-        idx = idx + num_channels*num_samples*2;
-        
-        wv = reshape(waveforms, num_samples, num_channels);
-        
-        if (version < 0.4)
-            channel_gains = fread(fid, num_channels, 'uint16', 0, 'l');
-            idx = idx + num_channels * 2;
-        else
-            channel_gains = fread(fid, num_channels, 'single');
-            idx = idx + num_channels * 4;
-        end
-        
-        info.gain(current_spike,:) = channel_gains;
-        
-        channel_thresholds = fread(fid, num_channels, 'uint16', 0, 'l');
-        idx = idx + num_channels * 2;
-        
-        info.thresh(current_spike,:) = channel_thresholds;
-        
-        if version >= 0.2
-            info.recNum(current_spike) = fread(fid, 1, 'uint16', 0, 'l');
-            idx = idx + 2;
-        end
-        
-        data(current_spike, :, :) = wv;
-        
-    end
-    fprintf('\n')
-    for ch = 1:num_channels % scale the waveforms
-        data(:, :, ch) = double(data(:, :, ch)-32768)./(channel_gains(ch)/1000);
-    end;
-    
-    data = data(1:current_spike,:,:);
-    timestamps = timestamps(1:current_spike);
-    info.source = info.source(1:current_spike);
-    info.gain = info.gain(1:current_spike);
-    info.thresh = info.thresh(1:current_spike);
-    
-    if version >= 0.2
-        info.recNum = info.recNum(1:current_spike); 
-    end
-    
-    if version >= 0.4
-        info.sortedId = info.sortedId(1:current_spike);
-    end
-    
-else
-    
-    error('File extension not recognized. Please use a ''.continuous'', ''.spikes'', or ''.events'' file.');
-    
-end
-
-fclose(fid); % close the file
-
-if (isfield(info.header,'sampleRate'))
-    if ~ischar(info.header.sampleRate)
-      timestamps = timestamps./info.header.sampleRate; % convert to seconds
-    end
-end
-
-end
-
-
-function filesize = getfilesize(fid)
-
 fseek(fid,0,'eof');
 filesize = ftell(fid);
-fseek(fid,0,'bof');
 
+NUM_HEADER_BYTES = 1024;
+fseek(fid,0,'bof');
+hdr = fread(fid, NUM_HEADER_BYTES, 'char*1');
+info = getHeader(hdr);
+if isfield(info.header, 'version')
+    version = info.header.version;
+else
+    version = 0.0;
+end
+
+switch filetype
+    case '.events'
+        bStr = {'timestamps' 'sampleNum' 'eventType' 'nodeId' 'eventId' 'data' 'recNum'};
+        bTypes = {'int64' 'uint16' 'uint8' 'uint8' 'uint8' 'uint8' 'uint16'};      
+        bRepeat = {1 1 1 1 1 1 1};
+        dblock = struct('Repeat',bRepeat,'Types', bTypes,'Str',bStr);
+        if version < 0.2, dblock(7) = [];  end
+        if version < 0.1, dblock(1).Types = 'uint64'; end
+    case '.continuous'
+        SAMPLES_PER_RECORD = 1024;
+        bStr = {'ts' 'nsamples' 'recNum' 'data' 'recordMarker'};
+        bTypes = {'int64' 'uint16' 'uint16' 'int16' 'uint8'};
+        bRepeat = {1 1 1 SAMPLES_PER_RECORD 10};
+        dblock = struct('Repeat',bRepeat,'Types', bTypes,'Str',bStr);
+        if version < 0.2, dblock(3) = []; end
+        if version < 0.1, dblock(1).Types = 'uint64'; dblock(2).Types = 'int16'; end
+    case '.spikes'
+        num_channels = info.header.num_channels;
+        num_samples = 40; 
+        bStr = {'eventType' 'timestamps' 'timestamps_software' 'source' 'nChannels' 'nSamples' 'sortedId' 'electrodeID' 'channel' 'color' 'pcProj' 'samplingFrequencyHz' 'data' 'gain' 'threshold' 'recordingNumber'};
+        bTypes = {'uint8' 'int64' 'int64' 'uint16' 'uint16' 'uint16' 'uint16' 'uint16' 'uint16' 'uint8' 'float32' 'uint16' 'uint16' 'float32' 'uint16' 'uint16'};
+        bRepeat = {1 1 1 1 1 1 1 1 1 3 2 1 num_channels*num_samples num_channels num_channels 1};
+        dblock = struct('Repeat',bRepeat,'Types', bTypes,'Str',bStr);
+        if version < 0.4,  dblock(7:12) = []; dblock(8).Types = 'uint16'; end
+        if version == 0.3, dblock = [dblock(1), struct('Repeat',1,'Types','uint32','Str','ts'), dblock(2:end)]; end
+        if version < 0.3, dblock(2) = []; end
+        if version < 0.2, dblock(9) = []; end
+        if version < 0.1, dblock(2).Types = 'uint64'; end
+end
+blockBytes = str2double(regexp({dblock.Types},'\d{1,2}$','match', 'once')) ./8 .* cell2mat({dblock.Repeat});
+numIdx = floor((filesize - NUM_HEADER_BYTES)/sum(blockBytes));
+
+switch filetype
+    case '.events'
+        timestamps = segRead('timestamps')./info.header.sampleRate;
+        info.sampleNum = segRead('sampleNum');
+        info.eventType = segRead('eventType');
+        info.nodeId = segRead('nodeId');
+        info.eventId = segRead('eventId');
+        data = segRead('data');
+        if version >= 0.2, info.recNum = segRead('recNum'); end
+    case '.continuous'
+        if nargout>1
+            info.ts = segRead('ts');
+        end            
+        info.nsamples = segRead('nsamples');
+        if ~all(info.nsamples == SAMPLES_PER_RECORD)&& version >= 0.1, error('Found corrupted record'); end
+        if version >= 0.2, info.recNum = segRead('recNum'); end
+        
+        % read in continuous data
+        if bInt16Out
+            data = segRead_int16('data', 'b');
+        else
+            data = segRead('data', 'b') .* info.header.bitVolts;
+        end
+        
+        if nargout>1 % do not create timestamp arrays unless they are requested
+            timestamps = nan(size(data));
+            current_sample = 0;
+            for record = 1:length(info.ts)
+                timestamps(current_sample+1:current_sample+info.nsamples(record)) = info.ts(record):info.ts(record)+info.nsamples(record)-1;
+                current_sample = current_sample + info.nsamples(record);
+            end
+        end
+    case '.spikes'
+        timestamps = segRead('timestamps')./info.header.sampleRate;
+        info.source = segRead('source');
+        info.samplenum = segRead('nSamples');
+        info.gain = permute(reshape(segRead('gain'), num_channels, numIdx), [2 1]);
+        info.thresh = permute(reshape(segRead('threshold'), num_channels, numIdx), [2 1]);
+        if version >= 0.4, info.sortedId = segRead('sortedId'); end
+        if version >= 0.2, info.recNum = segRead('recordingNumber'); end
+        data = permute(reshape(segRead('data'), num_samples, num_channels, numIdx), [3 1 2]);
+        data = (data-32768)./ permute(repmat(info.gain/1000,[1 1 num_samples]), [1 3 2]);
+end
+fclose(fid);
+
+function seg = segRead_int16(segName, mf)
+    %% This function is specifically for reading continuous data. 
+    %  It keeps the data in int16 precision, which can drastically decrease
+    %  memory consumption
+    if nargin == 1, mf = 'l'; end
+    segNum = find(strcmp({dblock.Str},segName));
+    fseek(fid, sum(blockBytes(1:segNum-1))+NUM_HEADER_BYTES, 'bof'); 
+    seg = fread(fid, numIdx*dblock(segNum).Repeat, [sprintf('%d*%s', ...
+        dblock(segNum).Repeat,dblock(segNum).Types) '=>int16'], sum(blockBytes) - blockBytes(segNum), mf);
+    
+end
+
+function seg = segRead(segName, mf)
+    if nargin == 1, mf = 'l'; end
+    segNum = find(strcmp({dblock.Str},segName));
+    fseek(fid, sum(blockBytes(1:segNum-1))+NUM_HEADER_BYTES, 'bof'); 
+    seg = fread(fid, numIdx*dblock(segNum).Repeat, sprintf('%d*%s', ...
+        dblock(segNum).Repeat,dblock(segNum).Types), sum(blockBytes) - blockBytes(segNum), mf);
+    
+end
+
+end
+function info = getHeader(hdr)
+eval(char(hdr'));
+info.header = header;
 end
