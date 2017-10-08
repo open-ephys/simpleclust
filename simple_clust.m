@@ -105,7 +105,7 @@ s_opt.skipevery_wf_display = 16; % skip every Nth waveform in the waveform displ
 % specify what features to compute:
 s_opt.features.pca=0;
 s_opt.features.wavelet=0;
-s_opt.features.nonlinear_energy=1;
+s_opt.features.nonlinear_energy=0;
 s_opt.features.max_derivative=1;
 
 %% init

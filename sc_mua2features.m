@@ -136,6 +136,22 @@ for n = 1:length(mua.ts)
     
     if n==1; features.name{c}=['time']; end;
     
+    
+    %max peak
+    if 0
+        for d=1:mua.ncontacts %size(spike,1)
+            c=c+1;
+            %features.data(c,n)= nle(d,n);
+            
+            x=spike(trodeboundaries(d):trodeboundaries(d+1)-1);
+            
+            features.data(c,n)= -x(9);
+            
+            if n==1; features.name{c}=['peak ',num2str(d)]; end;
+            
+        end;
+    end;
+    
     %peak height
     for d=1:mua.ncontacts %size(spike,1)
         x=spike(trodeboundaries(d):trodeboundaries(d+1)-1);
@@ -144,7 +160,7 @@ for n = 1:length(mua.ts)
         c=c+1;
         features.data(c,n)= neo(d);
         
-        if n==1; features.name{c}=['peak ',num2str(d)]; end;
+        if n==1; features.name{c}=['max ',num2str(d)]; end;
         
     end;
         

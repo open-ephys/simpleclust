@@ -45,10 +45,11 @@ if usefastmethod
         sfact = features.imagesize/x;
         features.waveforms_hi=zeros(size(mua.waveforms,1),round(x*sfact));
         
+        ii_intp=round(L_im);
         
         for i=1:size( mua.waveforms,1)
             
-            if mod(i,4000)==0
+            if mod(i,10000)==0
                 clf; hold on;
                 fill([-2 -2 5 5],[-2 2 2 -2],'k','FaceColor',[.95 .95 .95]);
                 
@@ -66,9 +67,8 @@ if usefastmethod
                 drawnow;
             end;
             
-            
-            
-            features.waveforms_hi(i,:) = interp1(1:x,mua.waveforms(i,:),L_im, 'linear'); % use 'linear' for speed or even 'nearest'
+            %features.waveforms_hi(i,:) = interp1(1:x,mua.waveforms(i,:),L_im, 'nearest'); % use 'linear' for speed or even 'nearest'
+            features.waveforms_hi(i,:) = mua.waveforms(i,ii_intp);
         end;
     end;
 end;

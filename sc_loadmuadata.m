@@ -9,10 +9,22 @@ muafile_ext = muafile_ext(2:end);
 switch muafile_ext
     
     case 'spikes' % open ephys data format
-        [data, timestamps, info] = load_open_ephys_data(muafile);
+        [data, timestamps, info] = load_open_ephys_data_faster(muafile);
+        
+       % remove end of file? 
+       % cutoff_t=3.9100e+03;
+       % cutoff=min(find(timestamps>cutoff_t));
+       % data=data(1:cutoff,:,:);
+       % timestamps=timestamps(1:cutoff);
+        
         
         features.chnumstr = info.header.electrode;
+        
         features.sourcechannel= str2num(info.header.electrode(end-1:end));
+        if numel( features.sourcechannel)==0
+            features.sourcechannel= str2num(info.header.electrode(end));
+        end;
+        
         sourcechannel=features.sourcechannel; % just so we dont overwrite it in  'features=sc_mua2features(mua,s_opt);'
         
         
@@ -473,6 +485,9 @@ if ~skipsetup
     features.imagesize=100;
     
     features.waveformscale=0.0001;
+    
+    mua.waveforms( find(abs(mua.waveforms) > 10000) ) =0;
+ mua.waveforms( isnan(mua.waveforms) ) =0;
     
     % find appropriate scale for plotting waveforms
     features.waveformscale=0.1 ./ quantile(mua.waveforms(1:100:end)-mean(mua.waveforms(1:100:end)),.95);
