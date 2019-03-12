@@ -99,7 +99,7 @@ end;
 %% write data
 
 
-features.data=zeros(6,length(mua.ts));
+features.data=zeros(2,length(mua.ts));
 
 lastpercent=0;
 

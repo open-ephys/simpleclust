@@ -20,6 +20,10 @@ else
     fstr='k.';
 end;
 
+if min(c==[0 0 1])==1
+    c=[.2 .7 1];
+end;
+
 plot(x,y,fstr,'color',c,'MarkerSize',m)
 
 plot([-1 -1],[-1 1],'k');

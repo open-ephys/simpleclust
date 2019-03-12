@@ -27,7 +27,6 @@ end;
         t= imfreehand(gca,'Closed' ,1);
         t.setClosed(1);
          r=t.getPosition;
-
         px=r(:,1);py=r(:,2);
         
 % remap from screen space to feature space
