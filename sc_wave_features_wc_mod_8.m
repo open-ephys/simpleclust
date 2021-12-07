@@ -7,7 +7,7 @@ nspk=size(spikes,1);
 ls = size(spikes,2);
 
 
-scales=24;
+scales=ceil(log2(ls));
 inputs=8;   % how many features to compute, ~10 make sense
 
 % CALCULATES FEATURES
