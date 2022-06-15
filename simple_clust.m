@@ -86,7 +86,7 @@ X - add template matching to selected cluster?
 
 s_opt = []; 
 
-s_opt.mex_intersect=1; % use mex fn for poly intersect (much faster)
+s_opt.mex_intersect=0; % use mex fn for poly intersect (much faster)
 s_opt.dont_save_noise=1; % exclude noise from final output, not from the simpleclust file though
 
 s_opt.auto_overlap = 1; % automatically loads other channels from same recording and computes spike overlap

@@ -29,6 +29,7 @@ dY=features.data(features.featureselects(2),notassigned);
 
 if ~s_opt.mex_intersect
     in = inpolygon(dX,dY,px,py); % slow matlab method
+    
 else
     % WAY faster Fast InPolygon detection MEX by Guillaume JACQUENOT
     % from http://www.mathworks.com/matlabcentral/fileexchange/20754-fast-inpolygon-detection-mex
